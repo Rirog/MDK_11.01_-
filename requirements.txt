@@ -1,0 +1,7 @@
+pymysql
+peewee
+fastapi
+uvicorn
+pydantic[email]
+requests
+dotenv
