@@ -52,6 +52,14 @@ class Cars(Table):
     run_km = IntegerField()
 
 
+class Buy(Table):
+    """Модель с информацией о покупках"""
+
+    id = AutoField()
+    car_id = ForeignKeyField(Cars, on_delete="CASCADE", on_update="CASCADE")
+    #saler_id =
+    date_buy = DateTimeField()
+    price = int
 
 
 tables = [
