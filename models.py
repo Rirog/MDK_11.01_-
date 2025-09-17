@@ -31,9 +31,14 @@ class Users(Table):
     phone = CharField(unique=True, max_length=12, null=False)
     full_name = CharField(max_length=50, null=False)
     password = CharField(max_length=128, null=False)
-    token = CharField(unique=True, null=True)
-    token_expires_at = DateTimeField(null=True)
 
+
+class UserToken(Table):
+    id = AutoField()
+    user_id = ForeignKeyField(Users, on_delete="CASCADE", on_update="CASCADE", null=False)
+    token = CharField(max_length=255, null=False)
+    created_at = DateTimeField(default=datetime.now(), null=False)
+    expires_at = DateTimeField(null=False)
 class Stamp(Table):
     id = AutoField()
     stamp = CharField(unique=True, null=False, max_length=20) 
@@ -52,18 +57,44 @@ class Cars(Table):
     run_km = IntegerField()
 
 
-class Buy(Table):
-    """Модель с информацией о покупках"""
+class Shopping(Table):
+    """Модель с информацией о покупках""" 
 
     id = AutoField()
     car_id = ForeignKeyField(Cars, on_delete="CASCADE", on_update="CASCADE")
-    #saler_id =
-    date_buy = DateTimeField()
-    price = int
+    saler_id = ForeignKeyField(Users,on_delete="CASCADE", on_update="CASCADE")
+    date_buy = DateTimeField(null=False, default=datetime.now())
+    price = IntegerField(null=False)
+
+class Sales(Table):
+
+    id = AutoField()
+    car_id = ForeignKeyField(Cars, on_delete="CASCADE", on_update="CASCADE")
+    buyer_id = ForeignKeyField(Users, on_delete="CASCADE", on_update="CASCADE")
+    date_sale = DateTimeField(null=False, default=datetime.now())
+    price = IntegerField(null=False)
+
+
+class Role(Table):
+
+    id = AutoField()
+    role = CharField(null=False, unique=True, max_length=20)
+
+class UserRole(Table):
+
+    user_id = ForeignKeyField(Users, on_delete="CASCADE", on_update="CASCADE")
+    role_id = ForeignKeyField(Role, on_delete="CASCADE", on_update="CASCADE")
 
 
 tables = [
-    Users
+    Users,
+    Stamp,
+    Cars,
+    ModelCar,
+    Shopping,
+    Sales,
+    Role,
+    UserRole
 ]
 
 
@@ -82,3 +113,5 @@ def initialize_database():
         print(f'Error initializing tables: {e}')
     finally:
         database_connection.close()
+
+initialize_database()
