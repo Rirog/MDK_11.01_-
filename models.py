@@ -96,6 +96,12 @@ class Sales(Table):
 
 
 
+class Sales(Table):
+    """Модель для хранения заявок на продажу пользователями."""
+
+    id = AutoField()
+    car
+
 tables = [
     Users,
     UserToken,
