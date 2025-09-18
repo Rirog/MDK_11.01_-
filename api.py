@@ -4,8 +4,9 @@ import re
 from datetime import datetime, timedelta
 from passlib.hash import bcrypt
 from uuid import uuid4
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
+from typing import Optional, List, Dict, Any
 from database import database_connection
 from models import (
     Users,
@@ -25,6 +26,34 @@ app = FastAPI()
 
 EMAIL_REGEX = r'^[A-Za-zА-Яа-яЁё0-9._%+-]+@[A-Za-zА-Яа-яЁё-]+\.[A-Za-zА-Яа-яЁё-]{2,10}$'
 PHONE_REGEX = r'^[0-9+()\-#]{10,15}$'
+
+
+def get_user_by_token(token: str, role: Optional[str] = None) -> Users:
+    try:
+        user_token = (UserToken.select().join(Users).where(
+            (UserToken.token==token) &
+            (UserToken.expires_at > datetime.datetime.now()) 
+        ).first())
+        
+        if not user_token:
+            raise HTTPException(401, 'Недействительный или просроченный токен.')
+               
+        user = user_token.user_id
+        user_role = Roles.get_by_id(user.role_id)
+        if role:
+            if user_role.name != 'Администратор':
+                if user_role.name != role:
+                    raise HTTPException(403, 'Недостаточно прав для выполнения этого действия.')
+        
+        user_token.expires_at = datetime.datetime.now() + datetime.timedelta(hours=1)
+        user_token.save()
+        
+        return user
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        raise HTTPException(500, f'Ошибка при проверке токена: {e}')
 
 
 class Registration(BaseModel):
@@ -119,3 +148,62 @@ async def auth_user(data: AuthRequest):
     except Exception as e:
         raise HTTPException(500, f'Произошла ошибка при авторизации: {e}')
 
+
+@app.delete('/users/delete_me/', tags=['Users'])
+async def delete_profile(token: str = Header(...)):
+    """Удаления аккаунта"""
+    user = get_user_by_token(token)
+    if not user:
+        raise HTTPException(401, 'Не удалось найти пользователя.')
+    user.delete_instance()
+    return {'message': 'Пользователь успешно удален.'}
+
+
+@app.get('/users/me/')
+async def get_profile(token: str = Header(...)):
+    """Получение своей информации пользователем"""
+    try:
+        user = get_user_by_token(token)
+        if not user:
+            raise HTTPException(401, 'Не удалось найти пользователя.')
+        return {
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'phone': user.phone,
+        }
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as e:
+        raise HTTPException(500, f'Непредвиденая ошибка: {e}')
+    
+
+@app.get("/usesr/list_users/", tags=["Admin"])
+async def get_list_users(token: str = Header(...)):
+    """Получение список всех пользователей"""
+    current_user = get_user_by_token(token, "Администратор")
+
+    if not current_user:
+        raise HTTPException(401, 'Пользователь не найден ')
+    
+    users = Users.select()
+
+    return [
+        {
+            "id": user.id,
+            "name": user.full_name,
+            "email": user.email,
+            "phone": user. phone,
+        } for user in users
+    ]
+
+# @app.delete("/usesr/delete_profile/", tags=["Admin"])
+# async def delete_profile_user(user_id: int, token: str = Header(...)):
+#     """Удаления профиля пользователя"""
+
+#     cucurrent_user = get_user_by_token(token, "Администратор")
+#     if user_id in  :
+#         raise HTTPException(401, 'Не удалось найти пользователя.')
+#     user.delete_instance()
+#     return {'message': 'Пользователь успешно удален.'}
