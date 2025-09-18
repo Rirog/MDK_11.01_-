@@ -168,7 +168,7 @@ async def get_profile(token: str = Header(...)):
             raise HTTPException(401, 'Не удалось найти пользователя.')
         return {
             'id': user.id,
-            'name': user.name,
+            'name': user.full_name,
             'email': user.email,
             'phone': user.phone,
         }
@@ -187,23 +187,27 @@ async def get_list_users(token: str = Header(...)):
     if not current_user:
         raise HTTPException(401, 'Пользователь не найден ')
     
-    users = Users.select()
+    users = Users.select().where(Users.id!=current_user.id)
 
     return [
         {
             "id": user.id,
             "name": user.full_name,
             "email": user.email,
-            "phone": user. phone,
+            "phone": user.phone,
         } for user in users
     ]
 
-# @app.delete("/usesr/delete_profile/", tags=["Admin"])
-# async def delete_profile_user(user_id: int, token: str = Header(...)):
-#     """Удаления профиля пользователя"""
+@app.delete("/usesr/delete_profile/", tags=["Admin"])
+async def delete_profile_user(user_id: int, token: str = Header(...)):
+    """Удаления профиля пользователя"""
 
-#     cucurrent_user = get_user_by_token(token, "Администратор")
-#     if user_id in  :
-#         raise HTTPException(401, 'Не удалось найти пользователя.')
-#     user.delete_instance()
-#     return {'message': 'Пользователь успешно удален.'}
+    current_user = get_user_by_token(token, "Администратор")
+    
+    user = Users.select().where(Users.id==user_id).first()
+    if user.id == current_user.id:
+         raise HTTPException(419, 'Аккаунт данного пользователя нельзя удалить.')
+    if not user:
+        raise HTTPException(404, 'Пользователь с указанным ID не найден.')
+    user.delete_instance()
+    return {'message': 'Пользователь успешно удален.'}

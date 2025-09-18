@@ -7,13 +7,8 @@ from peewee import (
     ForeignKeyField,
     AutoField,
 )
-from hashlib import sha512
 from database import database_connection
 from datetime import datetime
-
-
-def hashing(password: str) -> str:
-    return sha512(password.encode("UTF-8")).hexdigest()
 
 
 
@@ -73,6 +68,8 @@ class Cars(Table):
     stamp = ForeignKeyField(Stamp, on_delete="CASCADE", on_update="CASCADE")
     model_car = ForeignKeyField(ModelCar, on_delete="CASCADE", on_update="CASCADE")
     run_km = IntegerField()
+    vin = CharField(unique=True, null=False)
+
 
 
 class Shopping(Table):
@@ -86,6 +83,7 @@ class Shopping(Table):
 
 
 class Sales(Table):
+    """Модель для хранения данных о продаже"""
 
     id = AutoField()
     car_id = ForeignKeyField(Cars, on_delete="CASCADE", on_update="CASCADE")
@@ -94,13 +92,16 @@ class Sales(Table):
     price = IntegerField(null=False)
 
 
-
-
-class Sales(Table):
+class SalesUser(Table):
     """Модель для хранения заявок на продажу пользователями."""
 
     id = AutoField()
-    car
+    user_id = ForeignKeyField(Users, on_delete="CASCADE", on_update="CASCADE")
+    stamp = CharField(max_length=25)
+    model_car = CharField(max_length=25)
+    run_km = IntegerField()
+    price = IntegerField(null=False)
+    vin = CharField(unique=True, null=False)
 
 tables = [
     Users,
@@ -112,6 +113,7 @@ tables = [
     Cars,
     Shopping,
     Sales,
+    SalesUser
 ]
 
 roles = [

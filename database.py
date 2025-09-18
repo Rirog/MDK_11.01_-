@@ -7,7 +7,7 @@ DB_HOST = "localhost"
 DB_PORT = 3306
 DB_USER = "root"
 DB_PASSWORD = "root"
-# DB_PASSWORD = "mysql"
+DB_PASSWORD = "mysql"
 DB_NAME = "BazaDannih"
 
 
