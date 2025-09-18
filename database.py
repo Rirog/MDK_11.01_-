@@ -7,7 +7,7 @@ DB_HOST = "localhost"
 DB_PORT = 3306
 DB_USER = "root"
 DB_PASSWORD = "root"
-DB_PASSWORD = "mysql"
+# DB_PASSWORD = "mysql"
 DB_NAME = "BazaDannih"
 
 
@@ -25,7 +25,8 @@ def create_database():
     except MySQLError as error:
         print(f"Ошибка создания базы данных: {error}")
     finally:
-        conn_mysql.close()
+        if 'connection' in locals() and conn_mysql:
+            conn_mysql.close()
 
 create_database()
 

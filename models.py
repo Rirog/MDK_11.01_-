@@ -11,8 +11,10 @@ from hashlib import sha512
 from database import database_connection
 from datetime import datetime
 
+
 def hashing(password: str) -> str:
     return sha512(password.encode("UTF-8")).hexdigest()
+
 
 
 class Table(Model):
@@ -22,6 +24,7 @@ class Table(Model):
         """Класс мета"""
 
         database = database_connection
+
 
 class Users(Table):
     """Модель с информацией о пользователе"""
@@ -39,9 +42,24 @@ class UserToken(Table):
     token = CharField(max_length=255, null=False)
     created_at = DateTimeField(default=datetime.now(), null=False)
     expires_at = DateTimeField(null=False)
+
+
+class Roles(Table):
+
+    id = AutoField()
+    name = CharField(null=False, unique=True, max_length=20)
+
+
+class UserRoles(Table):
+
+    user_id = ForeignKeyField(Users, on_delete="CASCADE", on_update="CASCADE")
+    role_id = ForeignKeyField(Roles, on_delete="CASCADE", on_update="CASCADE")
+
+
 class Stamp(Table):
     id = AutoField()
     stamp = CharField(unique=True, null=False, max_length=20) 
+
 
 class ModelCar(Table):
     id = AutoField()
@@ -66,6 +84,7 @@ class Shopping(Table):
     date_buy = DateTimeField(null=False, default=datetime.now())
     price = IntegerField(null=False)
 
+
 class Sales(Table):
 
     id = AutoField()
@@ -75,28 +94,24 @@ class Sales(Table):
     price = IntegerField(null=False)
 
 
-class Role(Table):
-
-    id = AutoField()
-    role = CharField(null=False, unique=True, max_length=20)
-
-class UserRole(Table):
-
-    user_id = ForeignKeyField(Users, on_delete="CASCADE", on_update="CASCADE")
-    role_id = ForeignKeyField(Role, on_delete="CASCADE", on_update="CASCADE")
 
 
 tables = [
     Users,
+    UserToken,
+    Roles,
+    UserRoles,
     Stamp,
-    Cars,
     ModelCar,
+    Cars,
     Shopping,
     Sales,
-    Role,
-    UserRole
 ]
 
+roles = [
+    {"name": "Администратор"},
+    {"name": "Пользователь"}
+]
 
 
 def initialize_database():
@@ -107,11 +122,11 @@ def initialize_database():
             safe=True
         )
         print('Tables is initialized')
-
-
+        Roles.insert_many(roles).execute()
     except Exception as e:
         print(f'Error initializing tables: {e}')
     finally:
         database_connection.close()
+
 
 initialize_database()
