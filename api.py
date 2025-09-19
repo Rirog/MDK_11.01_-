@@ -2,7 +2,7 @@
 
 import re
 from datetime import datetime, timedelta
-from passlib.hash import bcrypt
+from argon2 import PasswordHasher
 from uuid import uuid4
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
@@ -23,6 +23,7 @@ from models import (
 
 app = FastAPI()
 
+ph = PasswordHasher()
 
 EMAIL_REGEX = r'^[A-Za-zА-Яа-яЁё0-9._%+-]+@[A-Za-zА-Яа-яЁё-]+\.[A-Za-zА-Яа-яЁё-]{2,10}$'
 PHONE_REGEX = r'^[0-9+()\-#]{10,15}$'
@@ -32,20 +33,24 @@ def get_user_by_token(token: str, role: Optional[str] = None) -> Users:
     try:
         user_token = (UserToken.select().join(Users).where(
             (UserToken.token==token) &
-            (UserToken.expires_at > datetime.datetime.now()) 
+            (UserToken.expires_at > datetime.now()) 
         ).first())
         
         if not user_token:
             raise HTTPException(401, 'Недействительный или просроченный токен.')
                
         user = user_token.user_id
-        user_role = Roles.get_by_id(user.role_id)
+        user_role = (UserRoles
+                    .select(Roles.name)
+                    .join(Roles, on=(UserRoles.role_id == Roles.id))
+                    .where(UserRoles.user_id == user)
+                    .first())
         if role:
-            if user_role.name != 'Администратор':
-                if user_role.name != role:
+            if user_role != 'Администратор':
+                if user_role != role:
                     raise HTTPException(403, 'Недостаточно прав для выполнения этого действия.')
         
-        user_token.expires_at = datetime.datetime.now() + datetime.timedelta(hours=1)
+        user_token.expires_at = datetime.now() + timedelta(hours=1)
         user_token.save()
         
         return user
@@ -79,7 +84,7 @@ async def register_users(email: str, password: str, full_name: str, number_phone
         if existing_user:
             raise HTTPException(403, 'Пользователь с таким email/номером телефона уже существует.')
 
-        hashed_password = bcrypt.hash(password)
+        hashed_password = ph.hash(password)
         with database_connection.atomic():
             user_role = Roles.get(Roles.name=='Пользователь')
             user, _ = Users.get_or_create(
@@ -125,8 +130,9 @@ async def auth_user(data: AuthRequest):
         existing_user = query.first() if query else None
         if not existing_user:
             raise HTTPException(404, 'Пользователя с таким email/номером телефона не  существует.')
-        
-        if not bcrypt.verify(password, existing_user.password):
+        try:
+            ph.verify(existing_user.password, password)
+        except:
             raise HTTPException(401, 'Вы ввели неправильный пароль! Попробуйте еще раз.')
         
         token = str(uuid4())
@@ -159,7 +165,7 @@ async def delete_profile(token: str = Header(...)):
     return {'message': 'Пользователь успешно удален.'}
 
 
-@app.get('/users/me/')
+@app.get('/users/me/', tags=['Users'])
 async def get_profile(token: str = Header(...)):
     """Получение своей информации пользователем"""
     try:
@@ -179,35 +185,49 @@ async def get_profile(token: str = Header(...)):
         raise HTTPException(500, f'Непредвиденая ошибка: {e}')
     
 
-@app.get("/usesr/list_users/", tags=["Admin"])
-async def get_list_users(token: str = Header(...)):
-    """Получение список всех пользователей"""
-    current_user = get_user_by_token(token, "Администратор")
+@app.put("/users/me/password")
+async def reboot_password(password: str, token: str = Header(...)):
+    """Изменение пользовательского пароля"""
+    current_user = get_user_by_token(token)
 
     if not current_user:
-        raise HTTPException(401, 'Пользователь не найден ')
+        raise HTTPException(404, 'Пользователь не найден ')
+
+    user = Users.get(Users.id==current_user.id)
+    hash_password = ph.hash(password)
+    user.password = hash_password
+    user.save()
+    return {"message": "пароль успешно изменен"}
+
+# @app.get("/usesr/list_users/", tags=["Admin"])
+# async def get_list_users(token: str = Header(...)):
+#     """Получение список всех пользователей"""
+#     current_user = get_user_by_token(token, "Администратор")
+
+#     if not current_user:
+#         raise HTTPException(404, 'Пользователь не найден ')
     
-    users = Users.select().where(Users.id!=current_user.id)
+#     users = Users.select().where(Users.id!=current_user.id)
 
-    return [
-        {
-            "id": user.id,
-            "name": user.full_name,
-            "email": user.email,
-            "phone": user.phone,
-        } for user in users
-    ]
+#     return [
+#         {
+#             "id": user.id,
+#             "name": user.full_name,
+#             "email": user.email,
+#             "phone": user.phone,
+#         } for user in users
+#     ]
 
-@app.delete("/usesr/delete_profile/", tags=["Admin"])
-async def delete_profile_user(user_id: int, token: str = Header(...)):
-    """Удаления профиля пользователя"""
+# @app.delete("/usesr/delete_profile/", tags=["Admin"])
+# async def delete_profile_user(user_id: int, token: str = Header(...)):
+#     """Удаления профиля пользователя"""
 
-    current_user = get_user_by_token(token, "Администратор")
+#     current_user = get_user_by_token(token, "Администратор")
     
-    user = Users.select().where(Users.id==user_id).first()
-    if user.id == current_user.id:
-         raise HTTPException(419, 'Аккаунт данного пользователя нельзя удалить.')
-    if not user:
-        raise HTTPException(404, 'Пользователь с указанным ID не найден.')
-    user.delete_instance()
-    return {'message': 'Пользователь успешно удален.'}
+#     user = Users.select().where(Users.id==user_id).first()
+#     if user.id == current_user.id:
+#          raise HTTPException(419, 'Аккаунт данного пользователя нельзя удалить.')
+#     if not user:
+#         raise HTTPException(404, 'Пользователь с указанным ID не найден.')
+#     user.delete_instance()
+#     return {'message': 'Пользователь успешно удален.'}

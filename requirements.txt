@@ -5,5 +5,4 @@ uvicorn
 pydantic[email]
 requests
 dotenv
-bcrypt
-passlib
+argon2-cffi
