@@ -158,7 +158,7 @@ async def auth_user(data: AuthRequest):
 @app.delete('/users/delete_me/', tags=['Users'])
 async def delete_profile(token: str = Header(...)):
     """Удаления аккаунта"""
-    user = get_user_by_token(token)
+    user = get_user_by_token(token, "Пользователь")
     if not user:
         raise HTTPException(401, 'Не удалось найти пользователя.')
     user.delete_instance()
@@ -189,16 +189,27 @@ async def get_profile(token: str = Header(...)):
 async def reboot_password(password: str, token: str = Header(...)):
     """Изменение пользовательского пароля"""
     current_user = get_user_by_token(token)
+    try:
+        if not current_user:
+            raise HTTPException(404, 'Пользователь не найден ')
 
-    if not current_user:
-        raise HTTPException(404, 'Пользователь не найден ')
+        user = Users.get(Users.id==current_user.id)
+        hash_password = ph.hash(password)
+        user.password = hash_password
+        user.save()
 
-    user = Users.get(Users.id==current_user.id)
-    hash_password = ph.hash(password)
-    user.password = hash_password
-    user.save()
-    return {"message": "пароль успешно изменен"}
+        ph.verify(hash_password, password)
 
+        return {"message": "пароль успешно изменен"}
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as e:
+        raise HTTPException(500, f'Непредвиденая ошибка: {e}')
+
+
+@app.post("/users/anketa/create")
+async def create 
 # @app.get("/usesr/list_users/", tags=["Admin"])
 # async def get_list_users(token: str = Header(...)):
 #     """Получение список всех пользователей"""
