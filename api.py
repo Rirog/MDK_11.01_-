@@ -18,6 +18,7 @@ from models import (
     Cars,
     Shopping,
     Sales,
+    SalesUser,
 )
 
 
@@ -64,6 +65,7 @@ def get_user_by_token(token: str, role: Optional[str] = None) -> Users:
 class Registration(BaseModel):
     email: str
     phone: str
+    full_name: str
     password: str
 
 
@@ -72,25 +74,31 @@ class AuthRequest(BaseModel):
     phone: str | None = None
     password: str
 
+class AnketaUsersSales(BaseModel):
+    stamp: str
+    model_car: str
+    run: int
+    price: int
+    vin: str
 
 
 @app.post('/users/register/', tags=['Users'])
-async def register_users(email: str, password: str, full_name: str, number_phone: str):
+async def register_users(user: Registration):
     """"Регистрация нового пользователя"""
-    if not re.fullmatch(EMAIL_REGEX, email) or not re.fullmatch(PHONE_REGEX, number_phone):
+    if not re.fullmatch(EMAIL_REGEX, user.email) or not re.fullmatch(PHONE_REGEX, user.phone):
         raise HTTPException(400, 'Неверный формат данных email/номера телефона')
     try:
-        existing_user = Users.select().where((Users.email==email) | (Users.phone==number_phone)).first()
+        existing_user = Users.select().where((Users.email==user.email) | (Users.phone==user.phone)).first()
         if existing_user:
             raise HTTPException(403, 'Пользователь с таким email/номером телефона уже существует.')
 
-        hashed_password = ph.hash(password)
+        hashed_password = ph.hash(user.password)
         with database_connection.atomic():
             user_role = Roles.get(Roles.name=='Пользователь')
             user, _ = Users.get_or_create(
-                email=email,
-                phone=number_phone,
-                full_name=full_name,
+                email=user.email,
+                phone=user.phone,
+                full_name=user.full_name,
                 password=hashed_password,
             )
             UserRoles.create(
@@ -209,7 +217,29 @@ async def reboot_password(password: str, token: str = Header(...)):
 
 
 @app.post("/users/anketa/create")
-async def create 
+async def create_anket(anketa: AnketaUsersSales, token: str = Header(...)):
+    """создание анкеты на продажу авто фирме"""
+
+    current_user = get_user_by_token(token, "Пользователь")
+
+    try:
+        if not current_user:
+            raise HTTPException(404, 'Пользователь не найден ')
+        SalesUser.create(
+            user_id = current_user.id,
+            stamp = anketa.stamp,
+            model_car = anketa.model_car,
+            run = anketa.run,
+            price = anketa.price,
+            vin = anketa.vin
+        )
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as e:
+        raise HTTPException(500, f'Непредвиденая ошибка: {e}')
+
+    
 # @app.get("/usesr/list_users/", tags=["Admin"])
 # async def get_list_users(token: str = Header(...)):
 #     """Получение список всех пользователей"""
