@@ -193,9 +193,9 @@ async def get_profile(token: str = Header(...)):
         raise HTTPException(500, f'Непредвиденая ошибка: {e}')
     
 
-@app.put("/users/me/password")
+@app.put("/users/me/password", tags=["Users"])
 async def reboot_password(password: str, token: str = Header(...)):
-    """Изменение пользовательского пароля"""
+    """Endpoint для изменение пользовательского пароля"""
     current_user = get_user_by_token(token)
     try:
         if not current_user:
@@ -216,9 +216,9 @@ async def reboot_password(password: str, token: str = Header(...)):
         raise HTTPException(500, f'Непредвиденая ошибка: {e}')
 
 
-@app.post("/users/anketa/create")
+@app.post("/users/anketa/create", tags=["Users"])
 async def create_anket(anketa: AnketaUsersSales, token: str = Header(...)):
-    """создание анкеты на продажу авто фирме"""
+    """ Endpoint для создания анкеты на продажу авто фирме"""
 
     current_user = get_user_by_token(token, "Пользователь")
 
@@ -239,6 +239,21 @@ async def create_anket(anketa: AnketaUsersSales, token: str = Header(...)):
     except Exception as e:
         raise HTTPException(500, f'Непредвиденая ошибка: {e}')
 
+
+
+@app.delete("/users/anketa/delete", tags=["Users"])
+async def delete_anketa(anketa: int , token: str = Header(...)):
+    """Endpoint для удаления пользователе анкеты"""
+    current_user = get_user_by_token(token)
+    try:
+        if not current_user:
+            raise HTTPException(404, 'Пользователь не найден ')
+        
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as e:
+        raise HTTPException(500, f'Непредвиденая ошибка: {e}')
     
 # @app.get("/usesr/list_users/", tags=["Admin"])
 # async def get_list_users(token: str = Header(...)):
