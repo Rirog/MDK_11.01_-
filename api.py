@@ -254,7 +254,7 @@ async def create_anket(anketa: AnketaUsersSales, token: str = Header(...)):
 
 @app.delete("/users/anketa/delete", tags=["Users"])
 async def delete_anketa(anketa_id: int , token: str = Header(...)):
-    """Endpoint для удаления пользователе анкеты"""
+    """Endpoint для удаления пользовательской анкеты"""
     current_user = get_user_by_token(token)
     try:
         if not current_user:
@@ -313,6 +313,7 @@ async def update_anketa(data: AnketaUpdate, anketa_id: int , token: str = Header
     except HTTPException as http_exc:
         raise http_exc
     
+
 @app.get("/users/anketi/", tags=["Users"])
 async def list_user_anketi(token: str = Header(...)):
     """Endpoint для просмотра анкет пользователя"""
@@ -323,9 +324,29 @@ async def list_user_anketi(token: str = Header(...)):
     if not anketi:
         return {"message": "Анкеты отсутствуют"}
     return [{
-        
+        "id": anketa.id,
+        "stamp": anketa.stamp,
+        "model_car": anketa.model_car,
+        "run": anketa.run,
+        "price": anketa.price,
+        "vin": anketa.vin
     } for anketa in anketi]
     
+
+@app.put("/users/anketi/")
+async def buyer_anketi(anketa_id: int, token: str = Header(...)):
+    """Endpoint для покупки авто пользователем"""
+
+    current_user = get_user_by_token(token)
+
+    try:
+        if not current_user:
+            raise HTTPException(404, 'Пользователь не найден ')
+        anketa = SalesUser.select().where(SalesUser.id == anketa_id)
+        if not anketa:
+            raise HTTPException(404, 'Анкета не найдена')
+        
+        
 
 
 

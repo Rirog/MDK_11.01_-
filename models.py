@@ -61,15 +61,22 @@ class ModelCar(Table):
     model_car = CharField(unique=True, null=False, max_length=50)
 
 
+class Status(Table):
+    """Модель со статусом анкеты"""
+
+    id = AutoField()
+    status = CharField(unique=True, null=False, max_length=10)
+
+
 class Cars(Table):
     """Модель с информацией об автомобиле"""
 
     id = AutoField()
-    stamp = ForeignKeyField(Stamp, on_delete="CASCADE", on_update="CASCADE")
-    model_car = ForeignKeyField(ModelCar, on_delete="CASCADE", on_update="CASCADE")
+    stamp_id = ForeignKeyField(Stamp, on_delete="CASCADE", on_update="CASCADE")
+    model_car_id = ForeignKeyField(ModelCar, on_delete="CASCADE", on_update="CASCADE")
     run_km = IntegerField()
     vin = CharField(unique=True, null=False)
-
+    status_id = ForeignKeyField(Status, on_delete="CASCADE", on_update="CASCADE")
 
 
 class Shopping(Table):
