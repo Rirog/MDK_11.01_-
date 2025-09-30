@@ -35,7 +35,7 @@ class UserToken(Table):
     id = AutoField()
     user_id = ForeignKeyField(Users, on_delete="CASCADE", on_update="CASCADE", null=False)
     token = CharField(max_length=255, null=False)
-    created_at = DateTimeField(default=datetime.now(), null=False)
+    created_at = DateTimeField(default=datetime.now, null=False)
     expires_at = DateTimeField(null=False)
 
 
@@ -53,7 +53,7 @@ class UserRoles(Table):
 
 class Stamp(Table):
     id = AutoField()
-    stamp = CharField(unique=True, null=False, max_length=20) 
+    stamp = CharField(unique=True, null=False, max_length=50) 
 
 
 class ModelCar(Table):
@@ -65,7 +65,7 @@ class Status(Table):
     """Модель со статусом анкеты"""
 
     id = AutoField()
-    status = CharField(unique=True, null=False, max_length=10)
+    status = CharField(unique=True, null=False, max_length=20)
 
 
 class Cars(Table):
@@ -77,15 +77,16 @@ class Cars(Table):
     run_km = IntegerField()
     vin = CharField(unique=True, null=False)
     status_id = ForeignKeyField(Status, on_delete="CASCADE", on_update="CASCADE")
-
+    price = IntegerField(null=False)
+    description = CharField(max_length=500, null=True)
 
 class Shopping(Table):
     """Модель с информацией о покупках""" 
 
     id = AutoField()
     car_id = ForeignKeyField(Cars, on_delete="CASCADE", on_update="CASCADE")
-    saler_id = ForeignKeyField(Users,on_delete="CASCADE", on_update="CASCADE")
-    date_buy = DateTimeField(null=False, default=datetime.now())
+    buyer_id = ForeignKeyField(Users,on_delete="CASCADE", on_update="CASCADE")
+    date_buy = DateTimeField(null=False, default=datetime.now)
     price = IntegerField(null=False)
 
 
@@ -95,20 +96,21 @@ class Sales(Table):
     id = AutoField()
     car_id = ForeignKeyField(Cars, on_delete="CASCADE", on_update="CASCADE")
     buyer_id = ForeignKeyField(Users, on_delete="CASCADE", on_update="CASCADE")
-    date_sale = DateTimeField(null=False, default=datetime.now())
+    date_sale = DateTimeField(null=False, default=datetime.now)
     price = IntegerField(null=False)
 
 
-class SalesUser(Table):
+class Anketa(Table):
     """Модель для хранения заявок на продажу пользователями."""
 
     id = AutoField()
     user_id = ForeignKeyField(Users, on_delete="CASCADE", on_update="CASCADE")
     stamp = CharField(max_length=25)
     model_car = CharField(max_length=25)
-    run_km = IntegerField()
+    run = IntegerField()
     price = IntegerField(null=False)
     vin = CharField(unique=True, null=False)
+    description = CharField(max_length=500, null=True)
 
 tables = [
     Users,
@@ -117,15 +119,21 @@ tables = [
     UserRoles,
     Stamp,
     ModelCar,
+    Status,
     Cars,
     Shopping,
     Sales,
-    SalesUser
+    Anketa,
 ]
 
 roles = [
     {"name": "Администратор"},
     {"name": "Пользователь"}
+]
+
+status = [
+    {"status": "Доступен"},
+    {"status": "Продан"}
 ]
 
 
@@ -138,6 +146,7 @@ def initialize_database():
         )
         print('Tables is initialized')
         Roles.insert_many(roles).execute()
+        Status.insert_many(status).execute()
     except Exception as e:
         print(f'Error initializing tables: {e}')
     finally:
