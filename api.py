@@ -62,6 +62,10 @@ def get_user_by_token(token: str, role: Optional[str] = None) -> Users:
         raise http_exc
 
 
+class PasswordChange(BaseModel):
+    password: str
+
+
 class Registration(BaseModel):
     email: str
     phone: str
@@ -268,17 +272,17 @@ async def update_profile(user_data: UserUpdate, token: str = Header(...)):
 
 
 @app.put("/users/me/password", tags=["Users"])
-async def reboot_password(password: str, token: str = Header(...)):
+async def reboot_password(password: PasswordChange, token: str = Header(...)):
     """Endpoint для изменение пользовательского пароля"""
     current_user = get_user_by_token(token)
     try:
     
         user = Users.get(Users.id==current_user.id)
-        hash_password = ph.hash(password)
+        hash_password = ph.hash(password.password)
         user.password = hash_password
         user.save()
 
-        ph.verify(hash_password, password)
+        ph.verify(hash_password, password.password)
 
         return {"message": "пароль успешно изменен"}
     except HTTPException as http_exc:
