@@ -150,7 +150,8 @@ async def register_users(user: Registration):
     if not re.fullmatch(EMAIL_REGEX, user.email) or not re.fullmatch(PHONE_REGEX, user.phone):
         raise HTTPException(400, 'Неверный формат данных email/номера телефона')
     try:
-        existing_user = Users.select().where((Users.email==user.email) | (Users.phone==user.phone)).first()
+        email = user.email.lower()
+        existing_user = Users.select().where((Users.email==email) | (Users.phone==user.phone)).first()
         if existing_user:
             raise HTTPException(403, 'Пользователь с таким email/номером телефона уже существует.')
 
@@ -158,7 +159,7 @@ async def register_users(user: Registration):
         with database_connection.atomic():
             user_role = Roles.get(Roles.name=='Пользователь')
             user, _ = Users.get_or_create(
-                email=user.email,
+                email=email,
                 phone=user.phone,
                 full_name=user.full_name,
                 password=hashed_password,
@@ -176,7 +177,7 @@ async def register_users(user: Registration):
 async def auth_user(data: AuthRequest):
     """Аутентификация пользователя"""
 
-    email = data.email
+    email = data.email.lower()
     phone = data.phone
     password = data.password
 
@@ -409,7 +410,8 @@ async def list_user_anketi(token: str = Header(...)):
             "model_car": anketa.model_car,
             "run": anketa.run,
             "price": anketa.price,
-            "vin": anketa.vin
+            "vin": anketa.vin,
+            "description": anketa.description
         } for anketa in anketi]
     except HTTPException as http_exc:
         raise http_exc
@@ -1072,7 +1074,8 @@ async def create_user(user: Registration, token: str = Header(...)):
     if not re.fullmatch(EMAIL_REGEX, user.email) or not re.fullmatch(PHONE_REGEX, user.phone):
         raise HTTPException(400, 'Неверный формат данных email/номера телефона')
     try:
-        existing_user = Users.select().where((Users.email==user.email) | (Users.phone==user.phone)).first()
+        email = user.email.lower()
+        existing_user = Users.select().where((Users.email==email) | (Users.phone==user.phone)).first()
         if existing_user:
             raise HTTPException(403, 'Пользователь с таким email/номером телефона уже существует.')
 
@@ -1080,7 +1083,7 @@ async def create_user(user: Registration, token: str = Header(...)):
         with database_connection.atomic():
             user_role = Roles.get(Roles.name=='Пользователь')
             new_user = Users.create(
-                email=user.email,
+                email=email,
                 phone=user.phone,
                 full_name=user.full_name,
                 password=hashed_password,
