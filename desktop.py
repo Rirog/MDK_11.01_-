@@ -1604,150 +1604,6 @@ class CarTradingApp:
             return text_widget.get('1.0', 'end-1c').strip()
         return ""
 
-    def show_my_purchases(self):
-        """Показать мои покупки"""
-        self.clear_window()
-        
-        main_frame = ttk.Frame(self.root, padding="20")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-
-        header_frame = ttk.Frame(main_frame)
-        header_frame.pack(fill=tk.X, pady=(0, 20))
-        
-        header_label = ttk.Label(header_frame, text="Мои покупки", 
-                            style='Header.TLabel')
-        header_label.pack(pady=(10, 5))
-
-        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
-        back_frame.pack(fill=tk.X, pady=(0, 10))
-        
-        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
-                            style='Secondary.TButton',
-                            command=self.show_main_menu,
-                            width=25)
-        back_btn.pack(ipady=8, anchor='center')
-
-        card = self.create_card_frame(main_frame)
-        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-
-        purchases_header = tk.Label(card, text="🛒 История моих покупок", 
-                                bg=self.colors['light'], fg=self.colors['dark'],
-                                font=('Arial', 14, 'bold'), anchor='w')
-        purchases_header.pack(fill=tk.X, pady=(0, 15))
-
-        purchases_frame = tk.Frame(card, bg=self.colors['light'])
-        purchases_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-
-        self.load_and_display_purchases(purchases_frame)
-
-    def load_and_display_purchases(self, parent_frame):
-        """Загрузить и отобразить список покупок"""
-        try:
-            headers = {"token": self.auth_token}
-            response = requests.get(f"{API_BASE_URL}/users/my_purchases", headers=headers)
-            
-            purchases = []
-            
-            if response.status_code == 200:
-                purchases = response.json()
-            elif response.status_code == 404:
-                pass
-            else:
-                error_msg = response.json().get("detail", "Ошибка загрузки покупок")
-                messagebox.showerror("Ошибка", error_msg)
-                return
-            if not purchases:
-                self.show_no_purchases_message(parent_frame)
-            else:
-                self.show_purchases_list(parent_frame, purchases)
-                
-        except requests.exceptions.RequestException as e:
-            self.show_no_purchases_message(parent_frame)
-            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
-
-    def show_no_purchases_message(self, parent_frame):
-        """Показать сообщение об отсутствии покупок"""
-        message_frame = tk.Frame(parent_frame, bg=self.colors['light'])
-        message_frame.pack(expand=True, pady=50)
-
-        cart_icon = tk.Label(message_frame, text="🛒", 
-                            bg=self.colors['light'], fg='#bdc3c7',
-                            font=('Arial', 48))
-        cart_icon.pack(pady=(0, 20))
-        
-        message_label = tk.Label(message_frame, 
-                            text="У вас пока нет покупок",
-                            bg=self.colors['light'], fg=self.colors['dark'],
-                            font=('Arial', 16, 'bold'))
-        message_label.pack(pady=(0, 10))
-
-        hint_label = tk.Label(message_frame,
-                            text="Автомобили, которые вы купите, появятся здесь",
-                            bg=self.colors['light'], fg='#7f8c8d',
-                            font=('Arial', 12))
-        hint_label.pack(pady=(0, 30))
-
-        browse_btn = ttk.Button(message_frame, text="🚗 Посмотреть доступные автомобили",
-                            style='Success.TButton',
-                            command=self.show_available_cars,
-                            width=36)
-        browse_btn.pack(ipady=10)
-
-    def show_purchases_list(self, parent_frame, purchases):
-        """Показать список покупок"""
-        container = tk.Frame(parent_frame, bg=self.colors['light'])
-        container.pack(fill=tk.BOTH, expand=True)
-        
-        canvas = tk.Canvas(container, bg=self.colors['light'], highlightthickness=0)
-        scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg=self.colors['light'])
-        
-        canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        
-        def configure_scroll_region(event=None):
-            canvas.configure(scrollregion=canvas.bbox("all"))
-            canvas.itemconfig(canvas_window, width=canvas.winfo_width())
-        
-        scrollable_frame.bind("<Configure>", configure_scroll_region)
-        canvas.bind("<Configure>", configure_scroll_region)
-
-        for purchase in purchases:
-            self.create_purchase_card(scrollable_frame, purchase)
-        
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-    def create_purchase_card(self, parent, purchase):
-        """Создать карточку покупки"""
-        card_frame = tk.Frame(parent, bg='#ffffff', relief='solid', bd=1, padx=15, pady=15)
-        card_frame.pack(fill=tk.X, pady=8, padx=5)
-
-        info_frame = tk.Frame(card_frame, bg='#ffffff')
-        info_frame.pack(fill=tk.X)
-
-        car_info = purchase.get('car', {})
-        car_text = f"🚗 {car_info.get('stamp', '')} {car_info.get('model', '')}"
-        car_label = tk.Label(info_frame, text=car_text,
-                            bg='#ffffff', fg=self.colors['dark'],
-                            font=('Arial', 12, 'bold'), anchor='w')
-        car_label.pack(fill=tk.X, pady=(0, 5))
-
-        details_frame = tk.Frame(info_frame, bg='#ffffff')
-        details_frame.pack(fill=tk.X, pady=5)
-        
-        details = [
-            f"💰 Стоимость: {purchase.get('price', 0):,} руб".replace(",", " "),
-            f"📅 Дата покупки: {purchase.get('date_buy', '')[:10]}",
-            f"🔢 VIN: {car_info.get('vin', '')}"
-        ]
-        
-        for detail in details:
-            detail_label = tk.Label(details_frame, text=detail,
-                                bg='#ffffff', fg='#2c3e50',
-                                font=('Arial', 10), anchor='w')
-            detail_label.pack(fill=tk.X, pady=2)
-
 
     def show_admin_cars_management(self):
         """Управление автомобилями для администратора"""
@@ -2083,7 +1939,7 @@ class CarTradingApp:
 
         self.users_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        for user in users:
+        for user in sorted(users, key=lambda x: x['id']):
             self.users_tree.insert(
                 '', 
                 tk.END, 
@@ -2484,7 +2340,7 @@ class CarTradingApp:
 
         tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        for purchase in purchases:
+        for purchase in sorted(purchases, key=lambda x: x['id']):
             car_info = purchase.get('car', {})
             price = purchase.get('price', 0)
             date_buy = purchase.get('date_buy', '')[:10]
@@ -2501,6 +2357,7 @@ class CarTradingApp:
                     date_buy
                 )
             )
+
 
         self.configure_treeview_style()
 
@@ -2601,7 +2458,7 @@ class CarTradingApp:
 
         tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        for purchase in purchases:
+        for purchase in sorted(purchases, key=lambda x: x['id']):
             car_info = purchase.get('car', {})
             buyer_info = purchase.get('buyer', {})
             price = purchase.get('price', 0)
@@ -2721,7 +2578,7 @@ class CarTradingApp:
 
         tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        for sale in sales:
+        for sale in sorted(sales, key=lambda x: x['id']):
             car_info = sale.get('car', {})
             buyer_info = sale.get('buyer', {})
             price = sale.get('price', 0)
@@ -3437,7 +3294,7 @@ class CarTradingApp:
 
         self.stamps_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        for stamp in stamps:
+        for stamp in sorted(stamps, key=lambda x: x['id']):
             self.stamps_tree.insert(
                 '', 
                 tk.END, 
@@ -3800,7 +3657,7 @@ class CarTradingApp:
 
         self.models_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        for model in models:
+        for model in sorted(models, key=lambda x: x['id']):
             self.models_tree.insert(
                 '', 
                 tk.END, 
