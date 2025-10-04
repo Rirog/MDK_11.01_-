@@ -12,13 +12,15 @@ class CarTradingApp:
         self.root.geometry("1920x1080")
         self.root.configure(bg='#355c7d')
         self.root.resizable(False, False)
-        
-        # Центрирование окна на экране
+
         self.center_window()
         
         self.auth_token = None
         self.current_user = None
-        
+        self.selected_user = None
+        self.selected_stamp = None 
+        self.selected_model = None 
+
         self.setup_styles()
         self.show_auth_frame()
     
@@ -91,38 +93,30 @@ class CarTradingApp:
         """Показать фрейм авторизации"""
         self.clear_window()
         
-        # Основной контейнер
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(expand=True)
         
-        # Верхняя часть с логотипом и заголовком
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(10, 20))
-        
-        # Иконка автомобиля как эмодзи
+
         car_icon = tk.Label(header_frame, text="🚗", font=('Arial', 40), 
                            bg=self.colors['background'], fg=self.colors['light'])
         car_icon.pack(pady=(0, 10))
-        
-        # Основной заголовок
+
         header_label = ttk.Label(header_frame, text="AvtoLimonchik", 
                                style='Header.TLabel')
         header_label.pack(pady=(0, 5))
-        
-        # Подзаголовок
+
         sub_label = ttk.Label(header_frame, text="Платформа для покупки и продажи автомобилей", 
                             font=('Arial', 12), foreground='#bdc3c7')
         sub_label.pack(pady=(0, 10))
-        
-        # Разделитель
+
         separator = ttk.Separator(header_frame, orient='horizontal')
         separator.pack(fill=tk.X, pady=10)
-        
-        # Карточка с приветствием
+
         card = self.create_card_frame(main_frame)
         card.pack(expand=True, padx=20, pady=10)
-        
-        # Приветственный текст
+
         welcome_text = (
             "Добро пожаловать в AvtoLimonchik!\n\n"
             "Здесь вы можете:\n"
@@ -136,24 +130,20 @@ class CarTradingApp:
                                bg=self.colors['light'], fg=self.colors['dark'],
                                font=('Arial', 11), justify=tk.LEFT)
         welcome_label.pack(pady=20, anchor='w')
-        
-        # Контейнер для кнопок
+
         btn_frame = tk.Frame(card, bg=self.colors['light'])
         btn_frame.pack(fill=tk.X, pady=20)
-        
-        # Кнопка входа
+
         login_btn = ttk.Button(btn_frame, text="Вход в систему", 
                               style='Accent.TButton', 
                               command=self.show_login)
         login_btn.pack(fill=tk.X, pady=8, ipady=10)
-        
-        # Кнопка регистрации
+
         register_btn = ttk.Button(btn_frame, text="Создать аккаунт", 
                                  style='Success.TButton', 
                                  command=self.show_register)
         register_btn.pack(fill=tk.X, pady=8, ipady=10)
-        
-        # Нижний колонтитул
+
         footer_frame = ttk.Frame(main_frame)
         footer_frame.pack(fill=tk.X, pady=(18, 10))
         
@@ -167,8 +157,7 @@ class CarTradingApp:
         
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(expand=True)
-        
-        # Заголовок
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
@@ -179,15 +168,13 @@ class CarTradingApp:
         sub_label = ttk.Label(header_frame, text="Введите ваши учетные данные", 
                             font=('Arial', 12), foreground='#bdc3c7')
         sub_label.pack(pady=(0, 10))
-        
-        # Карточка с формой
+
         card = self.create_card_frame(main_frame)
         card.pack(expand=True, padx=20, pady=10)
         
         form_frame = tk.Frame(card, bg=self.colors['light'])
         form_frame.pack(expand=True, pady=10)
-        
-        # Поля формы
+
         fields = [
             ("Электронная почта или телефон", "login_email_phone"),
             ("Пароль", "login_password")
@@ -196,34 +183,28 @@ class CarTradingApp:
         self.login_entries = {}
         
         for i, (label, field_name) in enumerate(fields):
-            # Контейнер для поля
             field_container = tk.Frame(form_frame, bg=self.colors['light'])
             field_container.pack(fill=tk.X, pady=12)
-            
-            # Метка
+
             lbl = tk.Label(field_container, text=label, bg=self.colors['light'], 
                          fg=self.colors['dark'], font=('Arial', 10, 'bold'),
                          anchor='w')
             lbl.pack(fill=tk.X, pady=(0, 5))
-            
-            # Поле ввода
+
             entry = ttk.Entry(field_container, font=('Arial', 11))
             if "password" in field_name:
                 entry.config(show="•")
             entry.pack(fill=tk.X, pady=2, ipady=6)
             self.login_entries[field_name] = entry
-        
-        # Контейнер для кнопок
+
         btn_frame = tk.Frame(card, bg=self.colors['light'])
         btn_frame.pack(fill=tk.X, pady=(10, 10))
-        
-        # Кнопка входа
+
         login_btn = ttk.Button(btn_frame, text="Войти", 
                               style='Accent.TButton', 
                               command=self.perform_login)
         login_btn.pack(fill=tk.X, pady=6, ipady=8)
-        
-        # Кнопка возврата
+
         back_btn = ttk.Button(btn_frame, text="Назад", 
                              style='Secondary.TButton', 
                              command=self.show_auth_frame)
@@ -235,8 +216,7 @@ class CarTradingApp:
         
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(expand=True)
-        
-        # Заголовок
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
@@ -247,15 +227,13 @@ class CarTradingApp:
         sub_label = ttk.Label(header_frame, text="Создайте новый аккаунт", 
                             font=('Arial', 12), foreground='#bdc3c7')
         sub_label.pack(pady=(0, 10))
-        
-        # Карточка с формой
+
         card = self.create_card_frame(main_frame)
         card.pack(expand=True, padx=20, pady=10)
         
         form_container = tk.Frame(card, bg=self.colors['light'])
         form_container.pack(expand=True, pady=10)
-        
-        # Поля формы
+
         fields = [
             ("Электронная почта", "register_email"),
             ("Телефон", "register_phone"), 
@@ -266,44 +244,37 @@ class CarTradingApp:
         self.register_entries = {}
         
         for i, (label, field_name) in enumerate(fields):
-            # Контейнер для поля
+
             field_frame = tk.Frame(form_container, bg=self.colors['light'])
             field_frame.pack(fill=tk.X, pady=10)
-            
-            # Метка
+
             lbl = tk.Label(field_frame, text=label, 
                          bg=self.colors['light'], fg=self.colors['dark'],
                          font=('Arial', 10, 'bold'), anchor='w')
             lbl.pack(fill=tk.X, pady=(0, 5))
-            
-            # Поле ввода
+
             entry = ttk.Entry(field_frame, font=('Arial', 11))
             if "password" in field_name:
                 entry.config(show="•")
             entry.pack(fill=tk.X, ipady=5)
             self.register_entries[field_name] = entry
-        
-        # Разделитель
+
         separator = ttk.Separator(form_container, orient='horizontal')
         separator.pack(fill=tk.X, pady=20)
-        
-        # Контейнер для кнопок
+
         btn_frame = tk.Frame(form_container, bg=self.colors['light'])
         btn_frame.pack(fill=tk.X, pady=10)
-        
-        # Кнопка регистрации
+
         register_btn = ttk.Button(btn_frame, text="Зарегистрироваться", 
                                  style='Success.TButton', 
                                  command=self.perform_register)
         register_btn.pack(fill=tk.X, pady=4, ipady=5)
-        
-        # Кнопка возврата
+
         back_btn = ttk.Button(btn_frame, text="Назад", 
                              style='Secondary.TButton', 
                              command=self.show_auth_frame)
         back_btn.pack(fill=tk.X, pady=1, ipady=1)
-        
-        # Подсказка
+
         hint_label = tk.Label(form_container, 
                              text="После регистрации вы сможете войти в систему",
                              bg=self.colors['light'], fg='#7f8c8d',
@@ -318,8 +289,7 @@ class CarTradingApp:
         if not email_phone or not password:
             messagebox.showerror("Ошибка", "Заполните все поля")
             return
-        
-        # Определяем, email это или телефон
+
         login_data = {"password": password}
         if "@" in email_phone:
             login_data["email"] = email_phone
@@ -349,8 +319,7 @@ class CarTradingApp:
             "full_name": self.register_entries["register_full_name"].get().strip(),
             "password": self.register_entries["register_password"].get()
         }
-        
-        # Проверка заполненности полей
+
         for field, value in data.items():
             if not value:
                 messagebox.showerror("Ошибка", "Заполните все поля")
@@ -361,7 +330,6 @@ class CarTradingApp:
             
             if response.status_code == 200:
                 messagebox.showinfo("Успех", "Регистрация выполнена успешно!")
-                # Очистка полей после успешной регистрации
                 for entry in self.register_entries.values():
                     entry.delete(0, tk.END)
                 self.show_login()
@@ -384,7 +352,21 @@ class CarTradingApp:
             
             if response.status_code == 200:
                 self.current_user = response.json()
-                self.show_main_menu()  # Изменено на новый главное меню
+                try:
+                    role_response = requests.get(
+                        f"{API_BASE_URL}/admin/users/{self.current_user['id']}", 
+                        headers=headers
+                    )
+                    if role_response.status_code == 200:
+                        user_data = role_response.json()
+                        self.current_user['role'] = user_data.get('role', 'Пользователь')
+                    else:
+                        self.current_user['role'] = 'Пользователь'
+                except Exception as e:
+                    print(f"Ошибка при получении роли: {e}")
+                    self.current_user['role'] = 'Пользователь'
+                
+                self.show_main_menu()
             else:
                 error_msg = response.json().get("detail", "Ошибка получения профиля")
                 messagebox.showerror("Ошибка", error_msg)
@@ -399,78 +381,80 @@ class CarTradingApp:
         
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(expand=True)
-        
-        # Заголовок
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         header_label = ttk.Label(header_frame, text="Главное меню", 
-                               style='Header.TLabel')
+                            style='Header.TLabel')
         header_label.pack(pady=(10, 5))
-        
-        sub_label = ttk.Label(header_frame, text="Добро пожаловать в AvtoLimonchik", 
+
+        user_role = self.current_user.get('role', 'Пользователь')
+        role_text = f"Добро пожаловать в AvtoLimonchik ({user_role})"
+        sub_label = ttk.Label(header_frame, text=role_text, 
                             font=('Arial', 12), foreground='#bdc3c7')
         sub_label.pack(pady=(0, 10))
-        
-        # Карточка с меню
+
         card = self.create_card_frame(main_frame)
         card.pack(expand=True, padx=20, pady=10)
-        
-        # Приветствие пользователя
+
         welcome_text = f"👋 Приветствуем, {self.current_user.get('name', 'Пользователь')}!"
         welcome_label = tk.Label(card, text=welcome_text,
-                               bg=self.colors['light'], fg=self.colors['dark'],
-                               font=('Arial', 14, 'bold'), anchor='w')
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 14, 'bold'), anchor='w')
         welcome_label.pack(fill=tk.X, pady=(0, 20))
-        
-        # Контейнер для кнопок меню
+
         menu_frame = tk.Frame(card, bg=self.colors['light'])
         menu_frame.pack(expand=True, pady=10)
-        
-        # Список кнопок меню (можно расширять в будущем)
-        menu_buttons = [
-            ("👤 Управление профилем", self.show_profile_management, 'Accent.TButton'),
-            ("🚗 Доступные автомобили", self.show_available_cars, 'Success.TButton'),
-            ("📝 Мои анкеты", self.show_my_anketi, 'Secondary.TButton'),
-            ("🛒 Мои покупки", self.show_my_purchases, 'Secondary.TButton'),
-        ]
-        
-        # Создаем кнопки меню - теперь они центрированы и больше
+
+        if self.current_user.get('role') == 'Администратор':
+            menu_buttons = [
+                    ("👤 Управление профилем", self.show_main_menu_old_style, 'Accent.TButton'),
+                    ("🚗 Управление автомобилями", self.show_admin_cars_management, 'Success.TButton'),
+                    ("🏷️ Управление марками", self.show_stamp_management, 'Secondary.TButton'),
+                    ("🚙 Управление моделями", self.show_model_management, 'Secondary.TButton'),
+                    ("📋 Управление анкетами", self.show_admin_anketi_management, 'Secondary.TButton'),
+                    ("👥 Управление пользователями", self.show_user_management, 'Danger.TButton'),
+                    ("🛒 История покупок", self.show_admin_purchases, 'Secondary.TButton'),
+                    ("💰 История продаж", self.show_admin_sales, 'Secondary.TButton'),
+            ]
+        else:
+
+            menu_buttons = [
+                ("👤 Управление профилем", self.show_main_menu_old_style, 'Accent.TButton'),
+                ("🚗 Доступные автомобили", self.show_available_cars, 'Success.TButton'),
+                ("📝 Мои анкеты", self.show_my_anketi, 'Secondary.TButton'),
+                ("🛒 Мои покупки", self.show_my_purchases, 'Secondary.TButton'),
+            ]
+
         self.menu_buttons = {}
         for i, (text, command, style) in enumerate(menu_buttons):
             btn_frame = tk.Frame(menu_frame, bg=self.colors['light'])
             btn_frame.pack(fill=tk.X, pady=8)
             
             btn = ttk.Button(btn_frame, text=text, style=style, command=command, width=30)
-            btn.pack(ipady=12, anchor='center')  # Увеличиваем внутренние отступы и центрируем
+            btn.pack(ipady=12, anchor='center')
             self.menu_buttons[text] = btn
-        
-        # Разделитель
+
         separator = ttk.Separator(card, orient='horizontal')
         separator.pack(fill=tk.X, pady=20)
-        
-        # Кнопка выхода - также центрирована и больше
+
         logout_frame = tk.Frame(card, bg=self.colors['light'])
         logout_frame.pack(fill=tk.X, pady=10)
         
         logout_btn = ttk.Button(logout_frame, text="🚪 Выйти из системы", 
-                              style='Danger.TButton', 
-                              command=self.confirm_logout,
-                              width=30)
+                            style='Danger.TButton', 
+                            command=self.confirm_logout,
+                            width=30)
         logout_btn.pack(ipady=12, anchor='center')
-        
-        # Нижний колонтитул
+
         footer_frame = ttk.Frame(main_frame)
         footer_frame.pack(fill=tk.X, pady=(18, 10))
         
         footer_label = ttk.Label(footer_frame, text="© 2025 AvtoLimonchik. Все права защищены.", 
-                               font=('Arial', 9), foreground='#95a5a6')
+                            font=('Arial', 9), foreground='#95a5a6')
         footer_label.pack()
-
-    def show_profile_management(self):
-        """Показать управление профилем"""
-        # Используем существующий метод показа профиля
-        self.show_main_menu_old_style()
+    
 
     def show_main_menu_old_style(self):
         """Старый стиль главного меню (профиль)"""
@@ -478,43 +462,39 @@ class CarTradingApp:
         
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(expand=True)
-        
-        # Заголовок
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         header_label = ttk.Label(header_frame, text="Управление профилем", 
-                               style='Header.TLabel')
+                            style='Header.TLabel')
         header_label.pack(pady=(10, 5))
-        
-        # Кнопка возврата в главное меню - центрирована и больше
+
         back_frame = tk.Frame(header_frame, bg=self.colors['background'])
         back_frame.pack(fill=tk.X, pady=(0, 10))
         
         back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
-                             style='Secondary.TButton',
-                             command=self.show_main_menu,
-                             width=25)
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
         back_btn.pack(ipady=8, anchor='center')
-        
-        # Карточка с профилем
+
         card = self.create_card_frame(main_frame)
         card.pack(expand=True, padx=20, pady=10)
-        
-        # Заголовок профиля
+
         profile_header = tk.Label(card, text="👤 Мой профиль", 
                                 bg=self.colors['light'], fg=self.colors['dark'],
                                 font=('Arial', 14, 'bold'), anchor='w')
         profile_header.pack(fill=tk.X, pady=(0, 15))
-        
-        # Информация о пользователе
+
         user_info_frame = tk.Frame(card, bg=self.colors['light'])
         user_info_frame.pack(fill=tk.X, pady=10)
-        
+
         user_fields = [
             ("Имя:", self.current_user.get('name', '')),
             ("Email:", self.current_user.get('email', '')),
-            ("Телефон:", self.current_user.get('phone', ''))
+            ("Телефон:", self.current_user.get('phone', '')),
+            ("Роль:", self.current_user.get('role', 'Пользователь'))  
         ]
         
         for label, value in user_fields:
@@ -522,29 +502,28 @@ class CarTradingApp:
             field_frame.pack(fill=tk.X, pady=8)
             
             lbl = tk.Label(field_frame, text=label, bg=self.colors['light'], 
-                         fg=self.colors['dark'], font=('Arial', 10, 'bold'),
-                         width=10, anchor='w')
+                        fg=self.colors['dark'], font=('Arial', 10, 'bold'),
+                        width=10, anchor='w')
             lbl.pack(side=tk.LEFT)
             
             value_lbl = tk.Label(field_frame, text=value, bg=self.colors['light'], 
-                               fg='#2c3e50', font=('Arial', 10),
-                               anchor='w')
+                            fg='#2c3e50', font=('Arial', 10),
+                            anchor='w')
             value_lbl.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(10, 0))
-        
-        # Разделитель
+
         separator = ttk.Separator(card, orient='horizontal')
         separator.pack(fill=tk.X, pady=20)
-        
-        # Контейнер для кнопок управления профилем
+
         profile_actions_frame = tk.Frame(card, bg=self.colors['light'])
         profile_actions_frame.pack(fill=tk.X, pady=10)
-        
-        # Кнопки управления профилем - центрированы и больше
+
         profile_buttons = [
             ("✏️ Изменить профиль", self.show_edit_profile, 'Accent.TButton'),
             ("🔒 Сменить пароль", self.show_change_password, 'Secondary.TButton'),
-            ("🗑️ Удалить аккаунт", self.confirm_delete_account, 'Danger.TButton')
         ]
+
+        if self.current_user.get('role') != 'Администратор':
+            profile_buttons.append(("🗑️ Удалить аккаунт", self.confirm_delete_account, 'Danger.TButton'))
         
         for text, command, style in profile_buttons:
             btn_frame = tk.Frame(profile_actions_frame, bg=self.colors['light'])
@@ -560,8 +539,7 @@ class CarTradingApp:
         
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(expand=True)
-        
-        # Заголовок
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
@@ -572,15 +550,13 @@ class CarTradingApp:
         sub_label = ttk.Label(header_frame, text="Измените данные вашего профиля", 
                             font=('Arial', 12), foreground='#bdc3c7')
         sub_label.pack(pady=(0, 10))
-        
-        # Карточка с формой
+
         card = self.create_card_frame(main_frame)
         card.pack(expand=True, padx=20, pady=10)
         
         form_frame = tk.Frame(card, bg=self.colors['light'])
         form_frame.pack(expand=True, pady=10)
-        
-        # Поля формы с текущими значениями
+
         fields = [
             ("Полное имя", "edit_full_name", self.current_user.get('name', '')),
             ("Телефон", "edit_phone", self.current_user.get('phone', ''))
@@ -589,37 +565,32 @@ class CarTradingApp:
         self.edit_entries = {}
         
         for i, (label, field_name, current_value) in enumerate(fields):
-            # Контейнер для поля
             field_container = tk.Frame(form_frame, bg=self.colors['light'])
             field_container.pack(fill=tk.X, pady=12)
             
-            # Метка
             lbl = tk.Label(field_container, text=label, bg=self.colors['light'], 
                          fg=self.colors['dark'], font=('Arial', 10, 'bold'),
                          anchor='w')
             lbl.pack(fill=tk.X, pady=(0, 5))
-            
-            # Поле ввода
+
             entry = ttk.Entry(field_container, font=('Arial', 11))
             entry.insert(0, current_value)
             entry.pack(fill=tk.X, pady=2, ipady=6)
             self.edit_entries[field_name] = entry
-        
-        # Контейнер для кнопок
+
         btn_frame = tk.Frame(card, bg=self.colors['light'])
         btn_frame.pack(fill=tk.X, pady=(20, 10))
-        
-        # Кнопка сохранения
+
         save_btn = ttk.Button(btn_frame, text="💾 Сохранить изменения", 
                              style='Success.TButton', 
                              command=self.perform_edit_profile)
         save_btn.pack(fill=tk.X, pady=6, ipady=8)
-        
-        # Кнопка отмены
+
         cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
                               style='Secondary.TButton', 
                               command=self.show_main_menu)
         cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
+
 
     def show_change_password(self):
         """Показать форму смены пароля"""
@@ -627,8 +598,7 @@ class CarTradingApp:
         
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(expand=True)
-        
-        # Заголовок
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
@@ -639,15 +609,13 @@ class CarTradingApp:
         sub_label = ttk.Label(header_frame, text="Введите новый пароль", 
                             font=('Arial', 12), foreground='#bdc3c7')
         sub_label.pack(pady=(0, 10))
-        
-        # Карточка с формой
+
         card = self.create_card_frame(main_frame)
         card.pack(expand=True, padx=20, pady=10)
         
         form_frame = tk.Frame(card, bg=self.colors['light'])
         form_frame.pack(expand=True, pady=10)
-        
-        # Поля формы
+
         fields = [
             ("Новый пароль", "new_password"),
             ("Подтвердите пароль", "confirm_password")
@@ -656,36 +624,31 @@ class CarTradingApp:
         self.password_entries = {}
         
         for i, (label, field_name) in enumerate(fields):
-            # Контейнер для поля
             field_container = tk.Frame(form_frame, bg=self.colors['light'])
             field_container.pack(fill=tk.X, pady=12)
-            
-            # Метка
+
             lbl = tk.Label(field_container, text=label, bg=self.colors['light'], 
                          fg=self.colors['dark'], font=('Arial', 10, 'bold'),
                          anchor='w')
             lbl.pack(fill=tk.X, pady=(0, 5))
-            
-            # Поле ввода
+
             entry = ttk.Entry(field_container, font=('Arial', 11), show="•")
             entry.pack(fill=tk.X, pady=2, ipady=6)
             self.password_entries[field_name] = entry
-        
-        # Контейнер для кнопок
+
         btn_frame = tk.Frame(card, bg=self.colors['light'])
         btn_frame.pack(fill=tk.X, pady=(20, 10))
-        
-        # Кнопка сохранения
+
         save_btn = ttk.Button(btn_frame, text="🔒 Сменить пароль", 
                              style='Success.TButton', 
                              command=self.perform_change_password)
         save_btn.pack(fill=tk.X, pady=6, ipady=8)
-        
-        # Кнопка отмены
+
         cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
                               style='Secondary.TButton', 
                               command=self.show_main_menu)
         cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
+
 
     def perform_edit_profile(self):
         """Выполнить обновление профиля"""
@@ -707,7 +670,7 @@ class CarTradingApp:
             
             if response.status_code == 200:
                 messagebox.showinfo("Успех", "Профиль успешно обновлен!")
-                self.get_user_profile()  # Обновляем данные профиля
+                self.get_user_profile() 
             else:
                 error_msg = response.json().get("detail", "Ошибка обновления профиля")
                 messagebox.showerror("Ошибка", error_msg)
@@ -730,7 +693,6 @@ class CarTradingApp:
         
         try:
             headers = {"token": self.auth_token}
-            # Исправлено: отправляем объект с полем password вместо просто строки
             data = {"password": new_password}
             
             response = requests.put(f"{API_BASE_URL}/users/me/password", json=data, headers=headers)
@@ -790,8 +752,7 @@ class CarTradingApp:
         try:
             headers = {"token": self.auth_token}
             response = requests.post(f"{API_BASE_URL}/users/logout/", headers=headers)
-            
-            # Выход выполняется в любом случае, даже если запрос не удался
+
             self.auth_token = None
             self.current_user = None
             self.show_auth_frame()
@@ -799,30 +760,28 @@ class CarTradingApp:
             if response.status_code == 200:
                 messagebox.showinfo("Успех", "Вы успешно вышли из системы!")
             else:
-                # Не показываем ошибку, так как выход все равно выполнен локально
                 pass
                 
         except requests.exceptions.RequestException:
-            # Выход выполняется локально даже при ошибке соединения
             self.auth_token = None
             self.current_user = None
             self.show_auth_frame()
+
+
     def show_available_cars(self):
         """Показать раздел доступных автомобилей"""
         self.clear_window()
         
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Заголовок
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         header_label = ttk.Label(header_frame, text="Доступные автомобили", 
                                style='Header.TLabel')
         header_label.pack(pady=(10, 5))
-        
-        # Кнопка возврата в главное меню
+
         back_frame = tk.Frame(header_frame, bg=self.colors['background'])
         back_frame.pack(fill=tk.X, pady=(0, 10))
         
@@ -831,28 +790,23 @@ class CarTradingApp:
                              command=self.show_main_menu,
                              width=25)
         back_btn.pack(ipady=8, anchor='center')
-        
-        # Карточка с автомобилями
+
         card = self.create_card_frame(main_frame)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-        
-        # Заголовок раздела
+
         cars_header = tk.Label(card, text="🚗 Автомобили в продаже", 
                               bg=self.colors['light'], fg=self.colors['dark'],
                               font=('Arial', 14, 'bold'), anchor='w')
         cars_header.pack(fill=tk.X, pady=(0, 15))
-        
-        # Область для списка автомобилей
+
         cars_list_frame = tk.Frame(card, bg=self.colors['light'])
         cars_list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-        
-        # Заголовок списка
+
         list_header = tk.Label(cars_list_frame, text="Доступные для покупки автомобили:",
                               bg=self.colors['light'], fg=self.colors['dark'],
                               font=('Arial', 12, 'bold'), anchor='w')
         list_header.pack(fill=tk.X, pady=(0, 10))
-        
-        # Получение и отображение автомобилей
+
         self.load_and_display_available_cars(cars_list_frame)
 
     def load_and_display_available_cars(self, parent_frame):
@@ -865,44 +819,79 @@ class CarTradingApp:
                 cars = response.json()
                 
                 if not cars:
-                    # Сообщение об отсутствии автомобилей
                     no_cars_label = tk.Label(parent_frame, 
-                                           text="В настоящее время нет доступных автомобилей для покупки",
-                                           bg=self.colors['light'], fg='#7f8c8d',
-                                           font=('Arial', 11))
+                                        text="В настоящее время нет доступных автомобилей для покупки",
+                                        bg=self.colors['light'], fg='#7f8c8d',
+                                        font=('Arial', 11))
                     no_cars_label.pack(pady=20)
                     return
-                
-                # Создаем фрейм с канвасом и скроллбаром
+
                 container = tk.Frame(parent_frame, bg=self.colors['light'])
                 container.pack(fill=tk.BOTH, expand=True)
-                
-                # Создаем канвас и скроллбар
+
                 canvas = tk.Canvas(container, bg=self.colors['light'], highlightthickness=0)
                 scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
                 scrollable_frame = tk.Frame(canvas, bg=self.colors['light'])
+
+                canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
                 
-                scrollable_frame.bind(
-                    "<Configure>",
-                    lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-                )
+                def configure_scroll_region(event=None):
+                    canvas.configure(scrollregion=canvas.bbox("all"))
+
+                    canvas.itemconfig(canvas_window, width=canvas.winfo_width())
+
+                    bbox = canvas.bbox("all")
+                    if bbox:
+                        canvas_height = canvas.winfo_height()
+                        content_height = bbox[3] - bbox[1]
+                        
+                        if content_height <= canvas_height:
+                            scrollbar.pack_forget()
+                            canvas.configure(yscrollcommand=None)
+                        else:
+                            scrollbar.pack(side="right", fill="y")
+                            canvas.configure(yscrollcommand=scrollbar.set)
                 
-                canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-                canvas.configure(yscrollcommand=scrollbar.set)
+                scrollable_frame.bind("<Configure>", configure_scroll_region)
+                canvas.bind("<Configure>", configure_scroll_region)
+                def on_mousewheel(event):
+                    bbox = canvas.bbox("all")
+                    if not bbox:
+                        return
+                    
+                    canvas_height = canvas.winfo_height()
+                    content_height = bbox[3] - bbox[1]
+
+                    if content_height <= canvas_height:
+                        return
+
+                    max_scroll = content_height - canvas_height
+                    current_scroll = canvas.yview()[0] * content_height
+
+                    scroll_delta = -1 * (event.delta // 120)
+                    new_scroll = current_scroll + scroll_delta * 50
+
+                    if new_scroll < 0:
+                        new_scroll = 0
+                    elif new_scroll > max_scroll:
+                        new_scroll = max_scroll
+                    
+                    canvas.yview_moveto(new_scroll / content_height)
+
+                def bind_scroll_to_widget(widget):
+                    widget.bind("<MouseWheel>", on_mousewheel)
+                    for child in widget.winfo_children():
+                        bind_scroll_to_widget(child)
                 
-                # Добавляем прокрутку колесиком мыши
-                def _on_mousewheel(event):
-                    canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-                
-                canvas.bind("<MouseWheel>", _on_mousewheel)
-                scrollable_frame.bind("<MouseWheel>", _on_mousewheel)
-                
-                # Отображаем автомобили в виде сетки
+                bind_scroll_to_widget(scrollable_frame)
+                bind_scroll_to_widget(canvas)
+
                 self.create_cars_grid(scrollable_frame, cars)
-                
-                # Упаковываем canvas и scrollbar
+
                 canvas.pack(side="left", fill="both", expand=True)
-                scrollbar.pack(side="right", fill="y")
+
+                canvas.update_idletasks()
+                configure_scroll_region()
                 
             else:
                 error_msg = response.json().get("detail", "Ошибка загрузки автомобилей")
@@ -918,12 +907,10 @@ class CarTradingApp:
         for i, car in enumerate(cars):
             row = i // columns
             col = i % columns
-            
-            # Создаем карточку автомобиля
+
             card_frame = self.create_car_card(car)
             card_frame.grid(row=row, column=col, padx=8, pady=8, sticky="nsew")
-            
-            # Настраиваем веса строк и колонок для равномерного распределения
+
             parent.grid_rowconfigure(row, weight=1)
             parent.grid_columnconfigure(col, weight=1)
 
@@ -932,13 +919,11 @@ class CarTradingApp:
         """Создать карточку для отображения автомобиля"""
         card_frame = tk.Frame(parent, bg='#ffffff', relief='solid', bd=1, padx=12, pady=12)
         card_frame.config(width=280, height=220)
-        card_frame.pack_propagate(False)  # Запрещаем изменение размера
-        
-        # Основная информация об автомобиле
+        card_frame.pack_propagate(False) 
+
         info_frame = tk.Frame(card_frame, bg='#ffffff')
         info_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Марка и модель (обрезаем если слишком длинные)
+
         stamp_model = f"{car.get('stamp', '')} {car.get('model', '')}"
         if len(stamp_model) > 25:
             stamp_model = stamp_model[:25] + "..."
@@ -948,8 +933,7 @@ class CarTradingApp:
                                     bg='#ffffff', fg=self.colors['dark'],
                                     font=('Arial', 11, 'bold'), anchor='w')
         stamp_model_label.pack(fill=tk.X, pady=(0, 5))
-        
-        # Детали
+
         details = [
             f"📏 Пробег: {car.get('run_km', 0):,} км".replace(",", " "),
             f"💰 Стоимость: {car.get('price', 0):,} руб".replace(",", " "),
@@ -961,19 +945,16 @@ class CarTradingApp:
                                    bg='#ffffff', fg='#2c3e50',
                                    font=('Arial', 9), anchor='w')
             detail_label.pack(fill=tk.X, pady=1)
-        
-        # Кнопки действий
+
         actions_frame = tk.Frame(card_frame, bg='#ffffff')
         actions_frame.pack(fill=tk.X, pady=(8, 0))
-        
-        # Кнопка подробнее
+
         details_btn = ttk.Button(actions_frame, text="ℹ️ Подробнее",
                                 style='Secondary.TButton',
                                 command=lambda c=car: self.show_car_details(c),
                                 width=12)
         details_btn.pack(side=tk.LEFT, padx=(0, 5), ipady=3, expand=True, fill=tk.X)
-        
-        # Кнопка покупки
+
         buy_btn = ttk.Button(actions_frame, text="🛒 Купить",
                             style='Success.TButton',
                             command=lambda c=car: self.confirm_purchase_car(c),
@@ -989,45 +970,43 @@ class CarTradingApp:
         for i, car in enumerate(cars):
             row = i // columns
             col = i % columns
-            
-            # Создаем карточку автомобиля
+
             card_frame = self.create_car_card(parent, car)
             card_frame.grid(row=row, column=col, padx=8, pady=8, sticky="nsew")
-            
-            # Настраиваем веса строк и колонок для равномерного распределения
+
             parent.grid_rowconfigure(row, weight=1)
             parent.grid_columnconfigure(col, weight=1)
 
 
     def show_car_details(self, car):
         """Показать детальную информацию об автомобиле"""
-        # Создаем новое окно с деталями
         details_window = tk.Toplevel(self.root)
         details_window.title("Детали автомобиля")
-        details_window.geometry("500x400")
+        details_window.geometry("500x600")
         details_window.configure(bg=self.colors['background'])
         details_window.resizable(False, False)
+
+        details_window.update_idletasks()
+        x = (self.root.winfo_x() + (self.root.winfo_width() // 2)) - (500 // 2)
+        y = (self.root.winfo_y() + (self.root.winfo_height() // 2)) - (400 // 2)
+        details_window.geometry(f"500x600+{x}+{y}")
         
-        # Центрируем окно
         details_window.transient(self.root)
         details_window.grab_set()
         
-        # Заголовок
         header_frame = ttk.Frame(details_window, padding="10")
         header_frame.pack(fill=tk.X, pady=(0, 10))
         
         header_label = ttk.Label(header_frame, text="Детали автомобиля", 
-                               style='Header.TLabel')
+                            style='Header.TLabel')
         header_label.pack(pady=(10, 5))
-        
-        # Карточка с информацией
+
         card = self.create_card_frame(details_window)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-        
-        # Основная информация
+
         info_frame = tk.Frame(card, bg=self.colors['light'])
         info_frame.pack(fill=tk.BOTH, expand=True, pady=10, padx=10)
-        
+
         details = [
             ("🚗 Марка:", car.get('stamp', 'Не указана')),
             ("🚙 Модель:", car.get('model', 'Не указана')),
@@ -1042,33 +1021,58 @@ class CarTradingApp:
             field_frame.pack(fill=tk.X, pady=8)
             
             lbl = tk.Label(field_frame, text=label, bg=self.colors['light'], 
-                         fg=self.colors['dark'], font=('Arial', 11, 'bold'),
-                         width=10, anchor='w')
+                        fg=self.colors['dark'], font=('Arial', 11, 'bold'),
+                        width=10, anchor='w')
             lbl.pack(side=tk.LEFT)
             
             value_lbl = tk.Label(field_frame, text=value, bg=self.colors['light'], 
-                               fg='#2c3e50', font=('Arial', 11),
-                               anchor='w')
+                            fg='#2c3e50', font=('Arial', 11),
+                            anchor='w')
             value_lbl.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(10, 0))
-        
-        # Разделитель
-        separator = ttk.Separator(info_frame, orient='horizontal')
-        separator.pack(fill=tk.X, pady=20)
-        
-        # Кнопка покупки
-        buy_btn_frame = tk.Frame(info_frame, bg=self.colors['light'])
+
+        description = car.get('description')
+        if description:
+            separator = ttk.Separator(info_frame, orient='horizontal')
+            separator.pack(fill=tk.X, pady=15)
+
+            desc_header_frame = tk.Frame(info_frame, bg=self.colors['light'])
+            desc_header_frame.pack(fill=tk.X, pady=(0, 8))
+            
+            desc_header = tk.Label(desc_header_frame, text="📄 Описание:", 
+                                bg=self.colors['light'], fg=self.colors['dark'],
+                                font=('Arial', 11, 'bold'), anchor='w')
+            desc_header.pack(fill=tk.X)
+
+            desc_frame = tk.Frame(info_frame, bg=self.colors['light'])
+            desc_frame.pack(fill=tk.X, pady=(0, 5))
+            
+            desc_text = tk.Text(desc_frame, 
+                            bg=self.colors['light'], fg='#2c3e50',
+                            font=('Arial', 10), 
+                            wrap=tk.WORD, 
+                            height=4,
+                            relief='flat',
+                            padx=5, pady=5)
+            desc_text.insert('1.0', description)
+            desc_text.config(state='disabled')
+            desc_text.pack(fill=tk.X)
+
+            details_window.geometry("550x650")
+
+        buy_btn_frame = tk.Frame(card, bg=self.colors['light'])
         buy_btn_frame.pack(fill=tk.X, pady=10)
         
         buy_btn = ttk.Button(buy_btn_frame, text="🛒 Купить этот автомобиль",
                             style='Success.TButton',
                             command=lambda: [details_window.destroy(), self.confirm_purchase_car(car)])
         buy_btn.pack(fill=tk.X, pady=6, ipady=8)
-        
-        # Кнопка закрытия
+
         close_btn = ttk.Button(buy_btn_frame, text="❌ Закрыть",
-                              style='Secondary.TButton',
-                              command=details_window.destroy)
+                            style='Secondary.TButton',
+                            command=details_window.destroy)
         close_btn.pack(fill=tk.X, pady=6, ipady=6)
+
+        details_window.focus_set()
 
     def confirm_purchase_car(self, car):
         """Подтверждение покупки автомобиля"""
@@ -1094,7 +1098,6 @@ class CarTradingApp:
             
             if response.status_code == 200:
                 messagebox.showinfo("Успех", "Автомобиль успешно куплен!")
-                # Обновляем список автомобилей
                 self.show_available_cars()
             else:
                 error_msg = response.json().get("detail", "Ошибка покупки автомобиля")
@@ -1110,16 +1113,14 @@ class CarTradingApp:
         
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Заголовок
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         header_label = ttk.Label(header_frame, text="Мои анкеты", 
                                style='Header.TLabel')
         header_label.pack(pady=(10, 5))
-        
-        # Кнопка возврата в главное меню
+
         back_frame = tk.Frame(header_frame, bg=self.colors['background'])
         back_frame.pack(fill=tk.X, pady=(0, 10))
         
@@ -1128,18 +1129,15 @@ class CarTradingApp:
                              command=self.show_main_menu,
                              width=25)
         back_btn.pack(ipady=8, anchor='center')
-        
-        # Карточка с анкетами
+
         card = self.create_card_frame(main_frame)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-        
-        # Заголовок раздела
+
         anketa_header = tk.Label(card, text="📝 Управление анкетами", 
                                 bg=self.colors['light'], fg=self.colors['dark'],
                                 font=('Arial', 14, 'bold'), anchor='w')
         anketa_header.pack(fill=tk.X, pady=(0, 15))
-        
-        # Кнопка создания новой анкеты
+
         create_btn_frame = tk.Frame(card, bg=self.colors['light'])
         create_btn_frame.pack(fill=tk.X, pady=10)
         
@@ -1148,22 +1146,18 @@ class CarTradingApp:
                                command=self.show_create_anketa_form,
                                width=30)
         create_btn.pack(ipady=10, anchor='center')
-        
-        # Разделитель
+
         separator = ttk.Separator(card, orient='horizontal')
         separator.pack(fill=tk.X, pady=20)
-        
-        # Область для списка анкет
+
         anketa_list_frame = tk.Frame(card, bg=self.colors['light'])
         anketa_list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-        
-        # Заголовок списка
+
         list_header = tk.Label(anketa_list_frame, text="Мои текущие анкеты:",
                               bg=self.colors['light'], fg=self.colors['dark'],
                               font=('Arial', 12, 'bold'), anchor='w')
         list_header.pack(fill=tk.X, pady=(0, 10))
-        
-        # Получение и отображение анкет
+
         self.load_and_display_anketi(anketa_list_frame)
 
 
@@ -1177,44 +1171,23 @@ class CarTradingApp:
                 anketi = response.json()
                 
                 if not anketi or (isinstance(anketi, dict) and anketi.get("message") == "Анкеты отсутствуют"):
-                    # Сообщение об отсутствии анкет
+
                     no_anketi_label = tk.Label(parent_frame, 
-                                              text="У вас пока нет созданных анкет",
-                                              bg=self.colors['light'], fg='#7f8c8d',
-                                              font=('Arial', 11))
+                                            text="У вас пока нет созданных анкет",
+                                            bg=self.colors['light'], fg='#7f8c8d',
+                                            font=('Arial', 11))
                     no_anketi_label.pack(pady=20)
                     return
-                
-                # Создаем фрейм с канвасом и скроллбаром
-                container = tk.Frame(parent_frame, bg=self.colors['light'])
+
+                container, scrollable_frame, canvas, bind_scroll_to_children = self.create_scrollable_frame(parent_frame)
                 container.pack(fill=tk.BOTH, expand=True)
-                
-                # Создаем канвас и скроллбар
-                canvas = tk.Canvas(container, bg=self.colors['light'], highlightthickness=0)
-                scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
-                scrollable_frame = tk.Frame(canvas, bg=self.colors['light'])
-                
-                scrollable_frame.bind(
-                    "<Configure>",
-                    lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-                )
-                
-                canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-                canvas.configure(yscrollcommand=scrollbar.set)
-                
-                # Добавляем прокрутку колесиком мыши
-                def _on_mousewheel(event):
-                    canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-                
-                canvas.bind("<MouseWheel>", _on_mousewheel)
-                scrollable_frame.bind("<MouseWheel>", _on_mousewheel)
-                
-                # Отображаем анкеты в виде сетки
+
                 self.create_anketa_grid(scrollable_frame, anketi)
                 
-                # Упаковываем canvas и scrollbar
-                canvas.pack(side="left", fill="both", expand=True)
-                scrollbar.pack(side="right", fill="y")
+                bind_scroll_to_children(scrollable_frame)
+
+                canvas.update_idletasks()
+                canvas.configure(scrollregion=canvas.bbox("all"))
                 
             else:
                 error_msg = response.json().get("detail", "Ошибка загрузки анкет")
@@ -1227,13 +1200,11 @@ class CarTradingApp:
         """Создать карточку для отображения анкеты"""
         card_frame = tk.Frame(parent, bg='#ffffff', relief='solid', bd=1, padx=12, pady=12)
         card_frame.config(width=280, height=200)
-        card_frame.pack_propagate(False)  # Запрещаем изменение размера
-        
-        # Основная информация об анкете
+        card_frame.pack_propagate(False) 
+
         info_frame = tk.Frame(card_frame, bg='#ffffff')
         info_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Марка и модель (обрезаем если слишком длинные)
+
         stamp_model = f"{anketa.get('stamp', '')} {anketa.get('model_car', '')}"
         if len(stamp_model) > 25:
             stamp_model = stamp_model[:25] + "..."
@@ -1243,10 +1214,9 @@ class CarTradingApp:
                                     bg='#ffffff', fg=self.colors['dark'],
                                     font=('Arial', 11, 'bold'), anchor='w')
         stamp_model_label.pack(fill=tk.X, pady=(0, 5))
-        
-        # Детали
+
         vin = anketa.get('vin', '')
-        display_vin = f"🔢 {vin[:12]}..." if len(vin) > 12 else f"🔢 {vin}"
+        display_vin = f"🔢 VIN: {vin[:12]}..." if len(vin) > 12 else f"🔢 VIN: {vin}"
         
         details = [
             f"📏 Пробег: {anketa.get('run', 0):,} км".replace(",", " "),
@@ -1259,11 +1229,9 @@ class CarTradingApp:
                                    bg='#ffffff', fg='#2c3e50',
                                    font=('Arial', 9), anchor='w')
             detail_label.pack(fill=tk.X, pady=1)
-        
-        # Описание (если есть)
+
         description = anketa.get('description', '')
         if description:
-            # Обрезаем длинное описание
             if len(description) > 60:
                 description = description[:60] + "..."
             
@@ -1271,19 +1239,16 @@ class CarTradingApp:
                                  bg='#ffffff', fg='#7f8c8d',
                                  font=('Arial', 8), anchor='w', justify=tk.LEFT, wraplength=240)
             desc_label.pack(fill=tk.X, pady=(5, 0))
-        
-        # Кнопки действий
+
         actions_frame = tk.Frame(card_frame, bg='#ffffff')
         actions_frame.pack(fill=tk.X, pady=(8, 0))
-        
-        # Кнопка редактирования
+
         edit_btn = ttk.Button(actions_frame, text="✏️ Изменить",
                              style='Secondary.TButton',
                              command=lambda a=anketa: self.show_edit_anketa_form(a),
                              width=8)
         edit_btn.pack(side=tk.LEFT, padx=(0, 5), ipady=3, expand=True, fill=tk.X)
-        
-        # Кнопка удаления
+
         delete_btn = ttk.Button(actions_frame, text="🗑️ Удалить",
                                style='Danger.TButton',
                                command=lambda a=anketa: self.confirm_delete_anketa(a),
@@ -1298,12 +1263,10 @@ class CarTradingApp:
         for i, anketa in enumerate(anketi):
             row = i // columns
             col = i % columns
-            
-            # Создаем карточку анкеты
+
             card_frame = self.create_anketa_card(parent, anketa)
             card_frame.grid(row=row, column=col, padx=8, pady=8, sticky="nsew")
-            
-            # Настраиваем веса строк и колонок для равномерного распределения
+
             parent.grid_rowconfigure(row, weight=1)
             parent.grid_columnconfigure(col, weight=1)
 
@@ -1312,58 +1275,62 @@ class CarTradingApp:
         self.clear_window()
         
         main_frame = ttk.Frame(self.root, padding="20")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Заголовок
+        main_frame.pack(expand=True)
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         header_label = ttk.Label(header_frame, text="Создание новой анкеты", 
-                               style='Header.TLabel')
+                            style='Header.TLabel')
         header_label.pack(pady=(10, 5))
-        
-        # Кнопка возврата
+
         back_frame = tk.Frame(header_frame, bg=self.colors['background'])
         back_frame.pack(fill=tk.X, pady=(0, 10))
         
         back_btn = ttk.Button(back_frame, text="← Назад к списку анкет",
-                             style='Secondary.TButton',
-                             command=self.show_my_anketi,
-                             width=25)
+                            style='Secondary.TButton',
+                            command=self.show_my_anketi,
+                            width=25)
         back_btn.pack(ipady=8, anchor='center')
         
-        # Карточка с формой
         card = self.create_card_frame(main_frame)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
         
         form_frame = tk.Frame(card, bg=self.colors['light'])
         form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-        
-        # Поля формы
+
         fields = [
-            ("Марка автомобиля", "create_stamp"),
-            ("Модель автомобиля", "create_model_car"),
-            ("Пробег (км)", "create_run"),
-            ("Цена (руб)", "create_price"),
-            ("VIN номер", "create_vin"),
-            ("Описание (необязательно)", "create_description")
+            ("Марка автомобиля", "create_stamp", "combobox"),
+            ("Модель автомобиля", "create_model_car", "combobox"),
+            ("Пробег (км)", "create_run", "entry"),
+            ("Цена (руб)", "create_price", "entry"),
+            ("VIN номер", "create_vin", "entry"),
+            ("Описание (необязательно)", "create_description", "text")
         ]
         
         self.create_anketa_entries = {}
+
+        self.load_car_data()
         
-        for i, (label, field_name) in enumerate(fields):
-            # Контейнер для поля
+        for i, (label, field_name, field_type) in enumerate(fields):
             field_container = tk.Frame(form_frame, bg=self.colors['light'])
             field_container.pack(fill=tk.X, pady=12)
-            
-            # Метка
+
             lbl = tk.Label(field_container, text=label, bg=self.colors['light'], 
-                         fg=self.colors['dark'], font=('Arial', 10, 'bold'),
-                         anchor='w')
+                        fg=self.colors['dark'], font=('Arial', 10, 'bold'),
+                        anchor='w')
             lbl.pack(fill=tk.X, pady=(0, 5))
-            
-            # Поле ввода
-            if field_name == "create_description":
+
+            if field_type == "combobox":
+                if field_name == "create_stamp":
+                    stamps = [stamp['stamp'] for stamp in self.car_stamps] if hasattr(self, 'car_stamps') and self.car_stamps else []
+                    entry = ttk.Combobox(field_container, font=('Arial', 11), values=stamps)
+                else:
+                    models = [model['model_car'] for model in self.car_models] if hasattr(self, 'car_models') and self.car_models else []
+                    entry = ttk.Combobox(field_container, font=('Arial', 11), values=models)
+                entry.pack(fill=tk.X, pady=2, ipady=6)
+                
+            elif field_type == "text":
                 entry = tk.Text(field_container, font=('Arial', 11), height=4, wrap=tk.WORD)
                 entry.pack(fill=tk.X, pady=2)
             else:
@@ -1373,21 +1340,18 @@ class CarTradingApp:
                 entry.pack(fill=tk.X, pady=2, ipady=6)
             
             self.create_anketa_entries[field_name] = entry
-        
-        # Контейнер для кнопок
+
         btn_frame = tk.Frame(card, bg=self.colors['light'])
         btn_frame.pack(fill=tk.X, pady=(20, 10))
-        
-        # Кнопка сохранения
+
         save_btn = ttk.Button(btn_frame, text="💾 Создать анкету", 
-                             style='Success.TButton', 
-                             command=self.perform_create_anketa)
+                            style='Success.TButton', 
+                            command=self.perform_create_anketa)
         save_btn.pack(fill=tk.X, pady=6, ipady=8)
-        
-        # Кнопка отмены
+
         cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
-                              style='Secondary.TButton', 
-                              command=self.show_my_anketi)
+                            style='Secondary.TButton', 
+                            command=self.show_my_anketi)
         cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
 
     def show_edit_anketa_form(self, anketa):
@@ -1396,58 +1360,63 @@ class CarTradingApp:
         self.current_editing_anketa = anketa
         
         main_frame = ttk.Frame(self.root, padding="20")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Заголовок
+        main_frame.pack(expand=True)
+
         header_frame = ttk.Frame(main_frame)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         header_label = ttk.Label(header_frame, text="Редактирование анкеты", 
-                               style='Header.TLabel')
+                            style='Header.TLabel')
         header_label.pack(pady=(10, 5))
-        
-        # Кнопка возврата
+
         back_frame = tk.Frame(header_frame, bg=self.colors['background'])
         back_frame.pack(fill=tk.X, pady=(0, 10))
         
         back_btn = ttk.Button(back_frame, text="← Назад к списку анкет",
-                             style='Secondary.TButton',
-                             command=self.show_my_anketi,
-                             width=25)
+                            style='Secondary.TButton',
+                            command=self.show_my_anketi,
+                            width=25)
         back_btn.pack(ipady=8, anchor='center')
-        
-        # Карточка с формой
+
         card = self.create_card_frame(main_frame)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
         
         form_frame = tk.Frame(card, bg=self.colors['light'])
         form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-        
-        # Поля формы с текущими значениями
+
+        self.load_car_data()
+
         fields = [
-            ("Марка автомобиля", "edit_stamp", anketa.get('stamp', '')),
-            ("Модель автомобиля", "edit_model_car", anketa.get('model_car', '')),
-            ("Пробег (км)", "edit_run", str(anketa.get('run', 0))),
-            ("Цена (руб)", "edit_price", str(anketa.get('price', 0))),
-            ("VIN номер", "edit_vin", anketa.get('vin', '')),
-            ("Описание (необязательно)", "edit_description", anketa.get('description', ''))
+            ("Марка автомобиля", "edit_stamp", anketa.get('stamp', ''), "combobox"),
+            ("Модель автомобиля", "edit_model_car", anketa.get('model_car', ''), "combobox"),
+            ("Пробег (км)", "edit_run", str(anketa.get('run', 0)), "entry"),
+            ("Цена (руб)", "edit_price", str(anketa.get('price', 0)), "entry"),
+            ("VIN номер", "edit_vin", anketa.get('vin', ''), "entry"),
+            ("Описание (необязательно)", "edit_description", anketa.get('description', ''), "text")
         ]
         
         self.edit_anketa_entries = {}
         
-        for i, (label, field_name, current_value) in enumerate(fields):
-            # Контейнер для поля
+        for i, (label, field_name, current_value, field_type) in enumerate(fields):
             field_container = tk.Frame(form_frame, bg=self.colors['light'])
             field_container.pack(fill=tk.X, pady=12)
-            
-            # Метка
+
             lbl = tk.Label(field_container, text=label, bg=self.colors['light'], 
-                         fg=self.colors['dark'], font=('Arial', 10, 'bold'),
-                         anchor='w')
+                        fg=self.colors['dark'], font=('Arial', 10, 'bold'),
+                        anchor='w')
             lbl.pack(fill=tk.X, pady=(0, 5))
-            
-            # Поле ввода
-            if field_name == "edit_description":
+
+            if field_type == "combobox":
+                if field_name == "edit_stamp":
+                    stamps = [stamp['stamp'] for stamp in self.car_stamps] if hasattr(self, 'car_stamps') and self.car_stamps else []
+                    entry = ttk.Combobox(field_container, font=('Arial', 11), values=stamps)
+                else:
+                    models = [model['model_car'] for model in self.car_models] if hasattr(self, 'car_models') and self.car_models else []
+                    entry = ttk.Combobox(field_container, font=('Arial', 11), values=models)
+                entry.set(current_value)
+                entry.pack(fill=tk.X, pady=2, ipady=6)
+                
+            elif field_type == "text":
                 entry = tk.Text(field_container, font=('Arial', 11), height=4, wrap=tk.WORD)
                 entry.insert('1.0', current_value)
                 entry.pack(fill=tk.X, pady=2)
@@ -1459,22 +1428,44 @@ class CarTradingApp:
                 entry.pack(fill=tk.X, pady=2, ipady=6)
             
             self.edit_anketa_entries[field_name] = entry
-        
-        # Контейнер для кнопок
+
         btn_frame = tk.Frame(card, bg=self.colors['light'])
         btn_frame.pack(fill=tk.X, pady=(20, 10))
-        
-        # Кнопка сохранения
+
         save_btn = ttk.Button(btn_frame, text="💾 Сохранить изменения", 
-                             style='Success.TButton', 
-                             command=self.perform_edit_anketa)
+                            style='Success.TButton', 
+                            command=self.perform_edit_anketa)
         save_btn.pack(fill=tk.X, pady=6, ipady=8)
-        
-        # Кнопка отмены
+
         cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
-                              style='Secondary.TButton', 
-                              command=self.show_my_anketi)
+                            style='Secondary.TButton', 
+                            command=self.show_my_anketi)
         cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
+
+    def load_car_data(self):
+        """Загрузить марки и модели автомобилей из API"""
+        try:
+            headers = {"token": self.auth_token}
+
+            response = requests.get(f"{API_BASE_URL}/admin/stamps/", headers=headers)
+            if response.status_code == 200:
+                self.car_stamps = response.json()
+            else:
+                self.car_stamps = []
+                print(f"Ошибка загрузки марок: {response.status_code}")
+
+            response = requests.get(f"{API_BASE_URL}/admin/models/", headers=headers)
+            if response.status_code == 200:
+                self.car_models = response.json()
+            else:
+                self.car_models = []
+                print(f"Ошибка загрузки моделей: {response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.car_stamps = []
+            self.car_models = []
+            print(f"Ошибка подключения: {str(e)}")
+
 
     def validate_number(self, value):
         """Валидация числовых полей"""
@@ -1497,8 +1488,7 @@ class CarTradingApp:
                 "vin": self.get_entry_value("create_vin"),
                 "description": self.get_text_value("create_description")
             }
-            
-            # Проверка обязательных полей
+
             required_fields = ["stamp", "model_car", "run", "price", "vin"]
             for field in required_fields:
                 if not data[field]:
@@ -1524,8 +1514,7 @@ class CarTradingApp:
         """Редактировать анкету"""
         try:
             data = {}
-            
-            # Собираем только измененные поля
+
             fields_mapping = {
                 "edit_stamp": "stamp",
                 "edit_model_car": "model_car", 
@@ -1617,7 +1606,2436 @@ class CarTradingApp:
 
     def show_my_purchases(self):
         """Показать мои покупки"""
-        messagebox.showinfo("В разработке", "Раздел 'Мои покупки' находится в разработке")
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Мои покупки", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        purchases_header = tk.Label(card, text="🛒 История моих покупок", 
+                                bg=self.colors['light'], fg=self.colors['dark'],
+                                font=('Arial', 14, 'bold'), anchor='w')
+        purchases_header.pack(fill=tk.X, pady=(0, 15))
+
+        purchases_frame = tk.Frame(card, bg=self.colors['light'])
+        purchases_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        self.load_and_display_purchases(purchases_frame)
+
+    def load_and_display_purchases(self, parent_frame):
+        """Загрузить и отобразить список покупок"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/users/my_purchases", headers=headers)
+            
+            purchases = []
+            
+            if response.status_code == 200:
+                purchases = response.json()
+            elif response.status_code == 404:
+                pass
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки покупок")
+                messagebox.showerror("Ошибка", error_msg)
+                return
+            if not purchases:
+                self.show_no_purchases_message(parent_frame)
+            else:
+                self.show_purchases_list(parent_frame, purchases)
+                
+        except requests.exceptions.RequestException as e:
+            self.show_no_purchases_message(parent_frame)
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def show_no_purchases_message(self, parent_frame):
+        """Показать сообщение об отсутствии покупок"""
+        message_frame = tk.Frame(parent_frame, bg=self.colors['light'])
+        message_frame.pack(expand=True, pady=50)
+
+        cart_icon = tk.Label(message_frame, text="🛒", 
+                            bg=self.colors['light'], fg='#bdc3c7',
+                            font=('Arial', 48))
+        cart_icon.pack(pady=(0, 20))
+        
+        message_label = tk.Label(message_frame, 
+                            text="У вас пока нет покупок",
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 16, 'bold'))
+        message_label.pack(pady=(0, 10))
+
+        hint_label = tk.Label(message_frame,
+                            text="Автомобили, которые вы купите, появятся здесь",
+                            bg=self.colors['light'], fg='#7f8c8d',
+                            font=('Arial', 12))
+        hint_label.pack(pady=(0, 30))
+
+        browse_btn = ttk.Button(message_frame, text="🚗 Посмотреть доступные автомобили",
+                            style='Success.TButton',
+                            command=self.show_available_cars,
+                            width=36)
+        browse_btn.pack(ipady=10)
+
+    def show_purchases_list(self, parent_frame, purchases):
+        """Показать список покупок"""
+        container = tk.Frame(parent_frame, bg=self.colors['light'])
+        container.pack(fill=tk.BOTH, expand=True)
+        
+        canvas = tk.Canvas(container, bg=self.colors['light'], highlightthickness=0)
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg=self.colors['light'])
+        
+        canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        
+        def configure_scroll_region(event=None):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            canvas.itemconfig(canvas_window, width=canvas.winfo_width())
+        
+        scrollable_frame.bind("<Configure>", configure_scroll_region)
+        canvas.bind("<Configure>", configure_scroll_region)
+
+        for purchase in purchases:
+            self.create_purchase_card(scrollable_frame, purchase)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+    def create_purchase_card(self, parent, purchase):
+        """Создать карточку покупки"""
+        card_frame = tk.Frame(parent, bg='#ffffff', relief='solid', bd=1, padx=15, pady=15)
+        card_frame.pack(fill=tk.X, pady=8, padx=5)
+
+        info_frame = tk.Frame(card_frame, bg='#ffffff')
+        info_frame.pack(fill=tk.X)
+
+        car_info = purchase.get('car', {})
+        car_text = f"🚗 {car_info.get('stamp', '')} {car_info.get('model', '')}"
+        car_label = tk.Label(info_frame, text=car_text,
+                            bg='#ffffff', fg=self.colors['dark'],
+                            font=('Arial', 12, 'bold'), anchor='w')
+        car_label.pack(fill=tk.X, pady=(0, 5))
+
+        details_frame = tk.Frame(info_frame, bg='#ffffff')
+        details_frame.pack(fill=tk.X, pady=5)
+        
+        details = [
+            f"💰 Стоимость: {purchase.get('price', 0):,} руб".replace(",", " "),
+            f"📅 Дата покупки: {purchase.get('date_buy', '')[:10]}",
+            f"🔢 VIN: {car_info.get('vin', '')}"
+        ]
+        
+        for detail in details:
+            detail_label = tk.Label(details_frame, text=detail,
+                                bg='#ffffff', fg='#2c3e50',
+                                font=('Arial', 10), anchor='w')
+            detail_label.pack(fill=tk.X, pady=2)
+
+
+    def show_admin_cars_management(self):
+        """Управление автомобилями для администратора"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Управление автомобилями", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        management_header = tk.Label(card, text="🚗 Управление автомобилями", 
+                                bg=self.colors['light'], fg=self.colors['dark'],
+                                font=('Arial', 14, 'bold'), anchor='w')
+        management_header.pack(fill=tk.X, pady=(0, 15))
+
+        add_btn_frame = tk.Frame(card, bg=self.colors['light'])
+        add_btn_frame.pack(fill=tk.X, pady=10)
+        
+        add_btn = ttk.Button(add_btn_frame, text="➕ Добавить автомобиль",
+                            style='Success.TButton',
+                            command=self.show_add_car_form,
+                            width=30)
+        add_btn.pack(ipady=10, anchor='center')
+
+        separator = ttk.Separator(card, orient='horizontal')
+        separator.pack(fill=tk.X, pady=20)
+
+        cars_list_frame = tk.Frame(card, bg=self.colors['light'])
+        cars_list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        list_header = tk.Label(cars_list_frame, text="Все автомобили в системе:",
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 12, 'bold'), anchor='w')
+        list_header.pack(fill=tk.X, pady=(0, 10))
+
+        self.load_and_display_all_cars(cars_list_frame)
+
+    def show_admin_anketi_management(self):
+        """Управление анкетами для администратора"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Анкеты пользователей", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        anketa_header = tk.Label(card, text="📝 Анкеты пользователей", 
+                                bg=self.colors['light'], fg=self.colors['dark'],
+                                font=('Arial', 14, 'bold'), anchor='w')
+        anketa_header.pack(fill=tk.X, pady=(0, 15))
+
+        anketa_list_frame = tk.Frame(card, bg=self.colors['light'])
+        anketa_list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        self.load_and_display_admin_anketi_like_user(anketa_list_frame)
+
+    def load_and_display_admin_anketi_like_user(self, parent_frame):
+        """Загрузить и отобразить анкеты в стиле пользовательского интерфейса"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/admin/anketi/", headers=headers)
+            
+            if response.status_code == 200:
+                anketi = response.json()
+                
+                if not anketi:
+                    no_anketi_label = tk.Label(parent_frame, 
+                                            text="Нет анкет от пользователей",
+                                            bg=self.colors['light'], fg='#7f8c8d',
+                                            font=('Arial', 11))
+                    no_anketi_label.pack(pady=20)
+                    return
+
+                container, scrollable_frame, canvas, bind_scroll_to_children = self.create_scrollable_frame(parent_frame)
+                container.pack(fill=tk.BOTH, expand=True)
+
+                self.create_admin_anketa_grid_like_user(scrollable_frame, anketi)
+
+                bind_scroll_to_children(scrollable_frame)
+
+                canvas.update_idletasks()
+                canvas.configure(scrollregion=canvas.bbox("all"))
+                
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки анкет")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def create_admin_anketa_grid_like_user(self, parent, anketi):
+        """Создать сетку анкет в стиле пользовательского интерфейса"""
+        columns = 4
+        
+        for i, anketa in enumerate(anketi):
+            row = i // columns
+            col = i % columns
+
+            card_frame = self.create_admin_anketa_card_like_user(parent, anketa)
+            card_frame.grid(row=row, column=col, padx=8, pady=8, sticky="nsew")
+
+            parent.grid_rowconfigure(row, weight=1)
+            parent.grid_columnconfigure(col, weight=1)
+
+    def create_admin_anketa_card_like_user(self, parent, anketa):
+        """Создать карточку анкеты для администратора в стиле пользовательского интерфейса"""
+        card_frame = tk.Frame(parent, bg='#ffffff', relief='solid', bd=1, padx=12, pady=12)
+        card_frame.config(width=280, height=300)
+        card_frame.pack_propagate(False)
+
+        info_frame = tk.Frame(card_frame, bg='#ffffff')
+        info_frame.pack(fill=tk.BOTH, expand=True)
+
+        user_info = f"👤 {anketa.get('user_name', '')}"
+        user_label = tk.Label(info_frame, 
+                            text=user_info,
+                            bg='#ffffff', fg=self.colors['dark'],
+                            font=('Arial', 10, 'bold'), anchor='w')
+        user_label.pack(fill=tk.X, pady=(0, 3))
+
+        stamp_model = f"{anketa.get('stamp', '')} {anketa.get('model_car', '')}"
+        if len(stamp_model) > 25:
+            stamp_model = stamp_model[:25] + "..."
+            
+        stamp_model_label = tk.Label(info_frame, 
+                                    text=f"🚗 {stamp_model}",
+                                    bg='#ffffff', fg=self.colors['dark'],
+                                    font=('Arial', 11, 'bold'), anchor='w')
+        stamp_model_label.pack(fill=tk.X, pady=(0, 5))
+    
+        vin = anketa.get('vin', '')
+        display_vin = f"🔢 VIN: {vin[:12]}..." if len(vin) > 12 else f"🔢 VIN: {vin}"
+        
+        details = [
+            f"📏 Пробег: {anketa.get('run', 0):,} км".replace(",", " "),
+            f"💰 Стоимость: {anketa.get('price', 0):,} руб".replace(",", " "),
+            display_vin
+        ]
+        
+        for detail in details:
+            detail_label = tk.Label(info_frame, text=detail,
+                                bg='#ffffff', fg='#2c3e50',
+                                font=('Arial', 9), anchor='w')
+            detail_label.pack(fill=tk.X, pady=1)
+        
+        description = anketa.get('description', '')
+        if description:
+            if len(description) > 60:
+                description = description[:60] + "..."
+            
+            desc_label = tk.Label(info_frame, text=f"📄 {description}",
+                                bg='#ffffff', fg='#7f8c8d',
+                                font=('Arial', 8), anchor='w', justify=tk.LEFT, wraplength=240)
+            desc_label.pack(fill=tk.X, pady=(5, 0))
+
+        actions_frame = tk.Frame(card_frame, bg='#ffffff')
+        actions_frame.pack(fill=tk.X, pady=(8, 0))
+
+        accept_btn = ttk.Button(actions_frame, text="✅ Принять анкету",
+                            style='Success.TButton',
+                            command=lambda a=anketa: self.confirm_accept_anketa(a))
+        accept_btn.pack(fill=tk.X, ipady=3)
+        
+        return card_frame
+    
+    def show_user_management(self):
+        """Управление пользователями для администратора с Treeview"""
+        self.clear_window()
+        self.selected_user = None
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Управление пользователями", 
+                                style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        management_header = tk.Label(card, text="👥 Управление пользователями", 
+                                    bg=self.colors['light'], fg=self.colors['dark'],
+                                    font=('Arial', 14, 'bold'), anchor='w')
+        management_header.pack(fill=tk.X, pady=(0, 15))
+
+        actions_frame = tk.Frame(card, bg=self.colors['light'])
+        actions_frame.pack(fill=tk.X, pady=10)
+
+        buttons_container = tk.Frame(actions_frame, bg=self.colors['light'])
+        buttons_container.pack(fill=tk.X)
+        
+        create_btn = ttk.Button(buttons_container, text="➕ Создать пользователя",
+                            style='Success.TButton',
+                            command=self.show_create_user_form,
+                            width=20)
+        create_btn.pack(side=tk.LEFT, padx=(0, 10), ipady=8)
+        
+        edit_btn = ttk.Button(buttons_container, text="✏️ Редактировать",
+                            style='Accent.TButton',
+                            command=self.show_edit_user_form,
+                            width=20)
+        edit_btn.pack(side=tk.LEFT, padx=(0, 10), ipady=8)
+        
+        delete_btn = ttk.Button(buttons_container, text="🗑️ Удалить",
+                            style='Danger.TButton',
+                            command=self.confirm_delete_user,
+                            width=20)
+        delete_btn.pack(side=tk.LEFT, ipady=8)
+
+        self.selected_user_info = tk.Label(actions_frame, 
+                                        text="Выберите пользователя из таблицы",
+                                        bg=self.colors['light'], fg='#7f8c8d',
+                                        font=('Arial', 10), anchor='w')
+        self.selected_user_info.pack(fill=tk.X, pady=(10, 0))
+
+        separator = ttk.Separator(card, orient='horizontal')
+        separator.pack(fill=tk.X, pady=20)
+
+        table_frame = tk.Frame(card, bg=self.colors['light'])
+        table_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        table_header = tk.Label(table_frame, text="Список пользователей:",
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 12, 'bold'), anchor='w')
+        table_header.pack(fill=tk.X, pady=(0, 10))
+
+        self.load_and_display_users_table(table_frame)
+
+    def load_and_display_users_table(self, parent_frame):
+        """Загрузить и отобразить таблицу пользователей с Treeview"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/users/list_users/", headers=headers)
+            
+            if response.status_code == 200:
+                users = response.json()
+                
+                if not users:
+                    no_users_label = tk.Label(parent_frame, 
+                                            text="В системе нет других пользователей",
+                                            bg=self.colors['light'], fg='#7f8c8d',
+                                            font=('Arial', 11))
+                    no_users_label.pack(pady=20)
+                    return
+
+                self.create_users_treeview(parent_frame, users)
+                
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки пользователей")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def create_users_treeview(self, parent, users):
+        """Создать Treeview для отображения пользователей"""
+        tree_frame = tk.Frame(parent, bg=self.colors['light'])
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+
+        v_scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        h_scrollbar = ttk.Scrollbar(tree_frame, orient=tk.HORIZONTAL)
+        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.users_tree = ttk.Treeview(
+            tree_frame,
+            columns=('ID', 'Имя', 'Email', 'Телефон'),
+            show='headings',
+            yscrollcommand=v_scrollbar.set,
+            xscrollcommand=h_scrollbar.set,
+            height=15
+        )
+
+        v_scrollbar.config(command=self.users_tree.yview)
+        h_scrollbar.config(command=self.users_tree.xview)
+
+        self.users_tree.heading('ID', text='ID', anchor=tk.W)
+        self.users_tree.heading('Имя', text='Имя', anchor=tk.W)
+        self.users_tree.heading('Email', text='Email', anchor=tk.W)
+        self.users_tree.heading('Телефон', text='Телефон', anchor=tk.W)
+
+        self.users_tree.column('ID', width=60, minwidth=50)
+        self.users_tree.column('Имя', width=200, minwidth=150)
+        self.users_tree.column('Email', width=250, minwidth=200)
+        self.users_tree.column('Телефон', width=150, minwidth=120)
+
+        self.users_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        for user in users:
+            self.users_tree.insert(
+                '', 
+                tk.END, 
+                values=(
+                    user['id'],
+                    user['name'],
+                    user['email'],
+                    user['phone']
+                )
+            )
+
+        self.users_tree.bind('<<TreeviewSelect>>', self.on_user_select)
+
+        self.configure_treeview_style()
+
+    def configure_treeview_style(self):
+        """Настроить стиль для Treeview"""
+        style = ttk.Style()
+        style.theme_use('clam')
+
+        style.configure(
+            'Treeview',
+            background='white',
+            foreground='#2c3e50',
+            fieldbackground='white',
+            borderwidth=1,
+            relief='solid'
+        )
+        
+        style.configure(
+            'Treeview.Heading',
+            background=self.colors['dark'],
+            foreground='white',
+            relief='flat',
+            font=('Arial', 10, 'bold')
+        )
+
+        style.map(
+            'Treeview',
+            background=[('selected', self.colors['primary'])],
+            foreground=[('selected', 'white')]
+        )
+
+    def on_user_select(self, event):
+        """Обработчик выбора пользователя в Treeview"""
+        selected_items = self.users_tree.selection()
+        if selected_items:
+            item = selected_items[0]
+            user_data = self.users_tree.item(item, 'values')
+            
+            self.selected_user = {
+                'id': int(user_data[0]),
+                'name': user_data[1],
+                'email': user_data[2],
+                'phone': user_data[3]
+            }
+            
+            self.selected_user_info.config(
+                text=f"Выбран: {self.selected_user['name']} (ID: {self.selected_user['id']}, Email: {self.selected_user['email']})",
+                fg=self.colors['dark']
+            )
+        else:
+            self.selected_user = None
+            self.selected_user_info.config(
+                text="Выберите пользователя из таблицы",
+                fg='#7f8c8d'
+            )
+
+    def show_create_user_form(self):
+        """Показать форму создания пользователя"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(expand=True)
+        
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Создание пользователя", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+        
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад к управлению пользователями",
+                            style='Secondary.TButton',
+                            command=self.show_user_management,
+                            width=37)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        form_frame = tk.Frame(card, bg=self.colors['light'])
+        form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        fields = [
+            ("Полное имя", "create_user_name"),
+            ("Email", "create_user_email"),
+            ("Телефон", "create_user_phone"),
+            ("Пароль", "create_user_password")
+        ]
+        
+        self.create_user_entries = {}
+        
+        for i, (label, field_name) in enumerate(fields):
+            field_container = tk.Frame(form_frame, bg=self.colors['light'])
+            field_container.pack(fill=tk.X, pady=12)
+
+            lbl = tk.Label(field_container, text=label, bg=self.colors['light'], 
+                        fg=self.colors['dark'], font=('Arial', 10, 'bold'),
+                        anchor='w')
+            lbl.pack(fill=tk.X, pady=(0, 5))
+
+            entry = ttk.Entry(field_container, font=('Arial', 11))
+            if "password" in field_name:
+                entry.config(show="•")
+            entry.pack(fill=tk.X, pady=2, ipady=6)
+            self.create_user_entries[field_name] = entry
+
+        btn_frame = tk.Frame(card, bg=self.colors['light'])
+        btn_frame.pack(fill=tk.X, pady=(20, 10))
+
+        save_btn = ttk.Button(btn_frame, text="💾 Создать пользователя", 
+                            style='Success.TButton', 
+                            command=self.perform_create_user)
+        save_btn.pack(fill=tk.X, pady=6, ipady=8)
+
+        cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
+                            style='Secondary.TButton', 
+                            command=self.show_user_management)
+        cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
+
+    def show_edit_user_form(self):
+        """Показать форму редактирования пользователя"""
+        if not self.selected_user:
+            messagebox.showwarning("Внимание", "Сначала выберите пользователя из таблицы")
+            return
+        
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(expand=True)
+        
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Редактирование пользователя", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+        
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад к управлению пользователями",
+                            style='Secondary.TButton',
+                            command=self.show_user_management,
+                            width=37)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        form_frame = tk.Frame(card, bg=self.colors['light'])
+        form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        info_frame = tk.Frame(form_frame, bg=self.colors['light'])
+        info_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        info_text = f"Редактирование пользователя:\nID: {self.selected_user['id']} • Email: {self.selected_user['email']}"
+        info_label = tk.Label(info_frame, text=info_text,
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 11, 'bold'), anchor='w', justify=tk.LEFT)
+        info_label.pack(fill=tk.X)
+
+        fields = [
+            ("Полное имя", "edit_user_name", self.selected_user.get('name', '')),
+            ("Телефон", "edit_user_phone", self.selected_user.get('phone', ''))
+        ]
+        
+        self.edit_user_entries = {}
+        
+        for i, (label, field_name, current_value) in enumerate(fields):
+            field_container = tk.Frame(form_frame, bg=self.colors['light'])
+            field_container.pack(fill=tk.X, pady=12)
+
+            lbl = tk.Label(field_container, text=label, bg=self.colors['light'], 
+                        fg=self.colors['dark'], font=('Arial', 10, 'bold'),
+                        anchor='w')
+            lbl.pack(fill=tk.X, pady=(0, 5))
+
+            entry = ttk.Entry(field_container, font=('Arial', 11))
+            entry.insert(0, current_value)
+            entry.pack(fill=tk.X, pady=2, ipady=6)
+            self.edit_user_entries[field_name] = entry
+
+        btn_frame = tk.Frame(card, bg=self.colors['light'])
+        btn_frame.pack(fill=tk.X, pady=(20, 10))
+
+        save_btn = ttk.Button(btn_frame, text="💾 Сохранить изменения", 
+                            style='Success.TButton', 
+                            command=self.perform_edit_user)
+        save_btn.pack(fill=tk.X, pady=6, ipady=8)
+
+        cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
+                            style='Secondary.TButton', 
+                            command=self.show_user_management)
+        cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
+
+    def perform_create_user(self):
+        """Создать нового пользователя"""
+        try:
+            data = {
+                "full_name": self.create_user_entries["create_user_name"].get().strip(),
+                "email": self.create_user_entries["create_user_email"].get().strip(),
+                "phone": self.create_user_entries["create_user_phone"].get().strip(),
+                "password": self.create_user_entries["create_user_password"].get()
+            }
+
+            for field, value in data.items():
+                if not value:
+                    messagebox.showerror("Ошибка", "Заполните все поля")
+                    return
+            
+            headers = {"token": self.auth_token}
+            response = requests.post(f"{API_BASE_URL}/admin/users/", json=data, headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Пользователь успешно создан!")
+                self.show_user_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка создания пользователя")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def perform_edit_user(self):
+        """Редактировать пользователя"""
+        try:
+            data = {}
+
+            if self.edit_user_entries["edit_user_name"].get().strip():
+                data["full_name"] = self.edit_user_entries["edit_user_name"].get().strip()
+            
+            if self.edit_user_entries["edit_user_phone"].get().strip():
+                data["phone"] = self.edit_user_entries["edit_user_phone"].get().strip()
+            
+            if not data:
+                messagebox.showinfo("Информация", "Нет изменений для сохранения")
+                return
+            
+            headers = {"token": self.auth_token}
+            user_id = self.selected_user['id']
+            response = requests.put(f"{API_BASE_URL}/admin/users/{user_id}", json=data, headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Пользователь успешно обновлен!")
+                self.show_user_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка обновления пользователя")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def confirm_delete_user(self):
+        """Подтверждение удаления пользователя"""
+        if not self.selected_user:
+            messagebox.showwarning("Внимание", "Сначала выберите пользователя из таблицы")
+            return
+        
+        result = messagebox.askyesno(
+            "Подтверждение удаления", 
+            f"Вы уверены, что хотите удалить пользователя?\n\n"
+            f"ID: {self.selected_user['id']}\n"
+            f"Имя: {self.selected_user['name']}\n"
+            f"Email: {self.selected_user['email']}\n"
+            f"Телефон: {self.selected_user['phone']}",
+            icon='warning'
+        )
+        
+        if result:
+            self.perform_delete_user()
+
+    def perform_delete_user(self):
+        """Удалить пользователя"""
+        try:
+            headers = {"token": self.auth_token}
+            user_id = self.selected_user['id']
+            response = requests.delete(f"{API_BASE_URL}/admin/users/delete_profile/?user_id={user_id}", 
+                                    headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Пользователь успешно удален!")
+                self.selected_user = None
+                self.show_user_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка удаления пользователя")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def show_my_purchases(self):
+        """Показать мои покупки с Treeview"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Мои покупки", 
+                                style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        purchases_header = tk.Label(card, text="🛒 История моих покупок", 
+                                bg=self.colors['light'], fg=self.colors['dark'],
+                                font=('Arial', 14, 'bold'), anchor='w')
+        purchases_header.pack(fill=tk.X, pady=(0, 15))
+
+        purchases_frame = tk.Frame(card, bg=self.colors['light'])
+        purchases_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        self.load_and_display_my_purchases_treeview(purchases_frame)
+
+    def load_and_display_my_purchases_treeview(self, parent_frame):
+        """Загрузить и отобразить покупки пользователя в Treeview"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/users/my_purchases", headers=headers)
+            
+            purchases = []
+            
+            if response.status_code == 200:
+                purchases = response.json()
+            elif response.status_code == 404:
+                pass
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки покупок")
+                messagebox.showerror("Ошибка", error_msg)
+                return
+            
+            if not purchases:
+                self.show_no_purchases_message(parent_frame)
+            else:
+                self.create_purchases_treeview(parent_frame, purchases)
+                
+        except requests.exceptions.RequestException as e:
+            self.show_no_purchases_message(parent_frame)
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def create_purchases_treeview(self, parent, purchases):
+        """Создать Treeview для отображения покупок"""
+        tree_frame = tk.Frame(parent, bg=self.colors['light'])
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+
+        v_scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        tree = ttk.Treeview(
+            tree_frame,
+            columns=('ID', 'Марка', 'Модель', 'VIN', 'Цена', 'Дата покупки'),
+            show='headings',
+            yscrollcommand=v_scrollbar.set,
+            height=10  
+        )
+
+        v_scrollbar.config(command=tree.yview)
+
+        columns = {
+            'ID': {'text': 'ID', 'width': 60, 'anchor': tk.CENTER},
+            'Марка': {'text': 'Марка', 'width': 120, 'anchor': tk.W},
+            'Модель': {'text': 'Модель', 'width': 120, 'anchor': tk.W},
+            'VIN': {'text': 'VIN', 'width': 150, 'anchor': tk.W},
+            'Цена': {'text': 'Цена', 'width': 120, 'anchor': tk.E},
+            'Дата покупки': {'text': 'Дата покупки', 'width': 120, 'anchor': tk.CENTER}
+        }
+
+        for col, settings in columns.items():
+            tree.heading(col, text=settings['text'], anchor=settings['anchor'])
+            tree.column(col, width=settings['width'], minwidth=50, anchor=settings['anchor'])
+
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        for purchase in purchases:
+            car_info = purchase.get('car', {})
+            price = purchase.get('price', 0)
+            date_buy = purchase.get('date_buy', '')[:10]
+            
+            tree.insert(
+                '', 
+                tk.END, 
+                values=(
+                    purchase['id'],
+                    car_info.get('stamp', ''),
+                    car_info.get('model', ''),
+                    car_info.get('vin', ''),
+                    f"{price:,} руб".replace(",", " "),
+                    date_buy
+                )
+            )
+
+        self.configure_treeview_style()
+
+    def show_admin_purchases(self):
+        """История покупок для администратора с Treeview"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="История покупок", 
+                                style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        purchases_header = tk.Label(card, text="🛒 История покупок пользователей", 
+                                bg=self.colors['light'], fg=self.colors['dark'],
+                                font=('Arial', 14, 'bold'), anchor='w')
+        purchases_header.pack(fill=tk.X, pady=(0, 15))
+
+        purchases_frame = tk.Frame(card, bg=self.colors['light'])
+        purchases_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        self.load_and_display_all_purchases_treeview(purchases_frame)
+
+    def load_and_display_all_purchases_treeview(self, parent_frame):
+        """Загрузить и отобразить все покупки в Treeview"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/admin/shopping/", headers=headers)
+            
+            if response.status_code == 200:
+                purchases = response.json()
+                
+                if not purchases:
+                    no_data_label = tk.Label(parent_frame, 
+                                        text="Нет данных о покупках",
+                                        bg=self.colors['light'], fg='#7f8c8d',
+                                        font=('Arial', 11))
+                    no_data_label.pack(pady=20)
+                    return
+                
+                self.create_admin_purchases_treeview(parent_frame, purchases)
+                
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки данных о покупках")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def create_admin_purchases_treeview(self, parent, purchases):
+        """Создать Treeview для отображения всех покупок (админ)"""
+        tree_frame = tk.Frame(parent, bg=self.colors['light'])
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+
+        v_scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        tree = ttk.Treeview(
+            tree_frame,
+            columns=('ID', 'Покупатель', 'Email', 'Марка', 'Модель', 'VIN', 'Цена', 'Дата'),
+            show='headings',
+            yscrollcommand=v_scrollbar.set,
+            height=10
+        )
+
+        v_scrollbar.config(command=tree.yview)
+
+        columns = {
+            'ID': {'text': 'ID', 'width': 60, 'anchor': tk.CENTER},
+            'Покупатель': {'text': 'Покупатель', 'width': 150, 'anchor': tk.W},
+            'Email': {'text': 'Email', 'width': 200, 'anchor': tk.W},
+            'Марка': {'text': 'Марка', 'width': 120, 'anchor': tk.W},
+            'Модель': {'text': 'Модель', 'width': 120, 'anchor': tk.W},
+            'VIN': {'text': 'VIN', 'width': 150, 'anchor': tk.W},
+            'Цена': {'text': 'Цена', 'width': 120, 'anchor': tk.E},
+            'Дата': {'text': 'Дата покупки', 'width': 120, 'anchor': tk.CENTER}
+        }
+
+        for col, settings in columns.items():
+            tree.heading(col, text=settings['text'], anchor=settings['anchor'])
+            tree.column(col, width=settings['width'], minwidth=50, anchor=settings['anchor'])
+
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        for purchase in purchases:
+            car_info = purchase.get('car', {})
+            buyer_info = purchase.get('buyer', {})
+            price = purchase.get('price', 0)
+            date_buy = purchase.get('date_buy', '')[:10]
+            
+            tree.insert(
+                '', 
+                tk.END, 
+                values=(
+                    purchase['id'],
+                    buyer_info.get('name', ''),
+                    buyer_info.get('email', ''),
+                    car_info.get('stamp', ''),
+                    car_info.get('model', ''),
+                    car_info.get('vin', ''),
+                    f"{price:,} руб".replace(",", " "),
+                    date_buy
+                )
+            )
+
+        self.configure_treeview_style()
+
+    def show_admin_sales(self):
+        """История продаж для администратора с Treeview"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="История продаж", 
+                                style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        sales_header = tk.Label(card, text="💰 История продаж автомобилей", 
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 14, 'bold'), anchor='w')
+        sales_header.pack(fill=tk.X, pady=(0, 15))
+
+        sales_frame = tk.Frame(card, bg=self.colors['light'])
+        sales_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        self.load_and_display_all_sales_treeview(sales_frame)
+
+    def load_and_display_all_sales_treeview(self, parent_frame):
+        """Загрузить и отобразить все продажи в Treeview"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/admin/sales/", headers=headers)
+            
+            if response.status_code == 200:
+                sales = response.json()
+                
+                if not sales:
+                    no_data_label = tk.Label(parent_frame, 
+                                        text="Нет данных о продажах",
+                                        bg=self.colors['light'], fg='#7f8c8d',
+                                        font=('Arial', 11))
+                    no_data_label.pack(pady=20)
+                    return
+                
+                self.create_admin_sales_treeview(parent_frame, sales)
+                
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки данных о продажах")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def create_admin_sales_treeview(self, parent, sales):
+        """Создать Treeview для отображения всех продаж (админ)"""
+        tree_frame = tk.Frame(parent, bg=self.colors['light'])
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+
+        v_scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        tree = ttk.Treeview(
+            tree_frame,
+            columns=('ID', 'Покупатель', 'Email', 'Марка', 'Модель', 'VIN', 'Цена', 'Дата'),
+            show='headings',
+            yscrollcommand=v_scrollbar.set,
+            height=10
+        )
+
+        v_scrollbar.config(command=tree.yview)
+
+        columns = {
+            'ID': {'text': 'ID', 'width': 60, 'anchor': tk.CENTER},
+            'Покупатель': {'text': 'Покупатель', 'width': 150, 'anchor': tk.W},
+            'Email': {'text': 'Email', 'width': 200, 'anchor': tk.W},
+            'Марка': {'text': 'Марка', 'width': 120, 'anchor': tk.W},
+            'Модель': {'text': 'Модель', 'width': 120, 'anchor': tk.W},
+            'VIN': {'text': 'VIN', 'width': 150, 'anchor': tk.W},
+            'Цена': {'text': 'Цена', 'width': 120, 'anchor': tk.E},
+            'Дата': {'text': 'Дата продажи', 'width': 120, 'anchor': tk.CENTER}
+        }
+
+        for col, settings in columns.items():
+            tree.heading(col, text=settings['text'], anchor=settings['anchor'])
+            tree.column(col, width=settings['width'], minwidth=50, anchor=settings['anchor'])
+
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        for sale in sales:
+            car_info = sale.get('car', {})
+            buyer_info = sale.get('buyer', {})
+            price = sale.get('price', 0)
+            date_sale = sale.get('date_sale', '')[:10]
+            
+            tree.insert(
+                '', 
+                tk.END, 
+                values=(
+                    sale['id'],
+                    buyer_info.get('name', ''),
+                    buyer_info.get('email', ''),
+                    car_info.get('stamp', ''),
+                    car_info.get('model', ''),
+                    car_info.get('vin', ''),
+                    f"{price:,} руб".replace(",", " "),
+                    date_sale
+                )
+            )
+
+        self.configure_treeview_style()
+
+    def configure_treeview_style(self):
+        """Настроить стиль для Treeview"""
+        style = ttk.Style()
+        style.theme_use('clam')
+
+        style.configure(
+            'Treeview',
+            background='white',
+            foreground='#2c3e50',
+            fieldbackground='white',
+            borderwidth=1,
+            relief='solid',
+            rowheight=25
+        )
+        
+        style.configure(
+            'Treeview.Heading',
+            background=self.colors['dark'],
+            foreground='white',
+            relief='flat',
+            font=('Arial', 10, 'bold')
+        )
+
+        style.map(
+            'Treeview',
+            background=[('selected', self.colors['primary'])],
+            foreground=[('selected', 'white')]
+        )
+
+    def show_add_car_form(self):
+        """Форма добавления автомобиля для администратора"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Добавление автомобиля", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад к управлению автомобилями",
+                            style='Secondary.TButton',
+                            command=self.show_admin_cars_management,
+                            width=37)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        form_frame = tk.Frame(card, bg=self.colors['light'])
+        form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        fields = [
+            ("Марка автомобиля", "add_stamp", ),
+            ("Модель автомобиля", "add_model"), 
+            ("Пробег (км)", "add_run"),
+            ("Цена (руб)", "add_price"),
+            ("VIN номер", "add_vin"),
+            ("Описание", "add_description")
+        ]
+        
+        self.add_car_entries = {}
+        
+        for i, (label, field_name) in enumerate(fields):
+            field_container = tk.Frame(form_frame, bg=self.colors['light'])
+            field_container.pack(fill=tk.X, pady=8)
+            
+            lbl = tk.Label(field_container, text=label, bg=self.colors['light'], 
+                        fg=self.colors['dark'], font=('Arial', 10, 'bold'),
+                        anchor='w')
+            lbl.pack(fill=tk.X, pady=(0, 5))
+            
+            if field_name == "add_description":
+                entry = tk.Text(field_container, font=('Arial', 11), height=3, wrap=tk.WORD)
+                entry.pack(fill=tk.X, pady=2)
+            else:
+                entry = ttk.Entry(field_container, font=('Arial', 11))
+                if field_name in ["add_run", "add_price"]:
+                    entry.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
+                entry.pack(fill=tk.X, pady=2, ipady=6)
+            
+            self.add_car_entries[field_name] = entry
+
+        btn_frame = tk.Frame(card, bg=self.colors['light'])
+        btn_frame.pack(fill=tk.X, pady=(20, 10))
+
+        save_btn = ttk.Button(btn_frame, text="💾 Добавить автомобиль", 
+                            style='Success.TButton', 
+                            command=self.perform_add_car)
+        save_btn.pack(fill=tk.X, pady=6, ipady=8)
+
+        cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
+                            style='Secondary.TButton', 
+                            command=self.show_admin_cars_management)
+        cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
+
+    def perform_add_car(self):
+        """Добавить автомобиль"""
+        try:
+            data = {
+                "stamp": self.add_car_entries["add_stamp"].get().strip(),
+                "model_car": self.add_car_entries["add_model"].get().strip(),
+                "run": int(self.add_car_entries["add_run"].get()),
+                "price": int(self.add_car_entries["add_price"].get()),
+                "vin": self.add_car_entries["add_vin"].get().strip(),
+                "description": self.add_car_entries["add_description"].get("1.0", "end-1c").strip()
+            }
+
+            required_fields = ["stamp", "model_car", "run", "price", "vin"]
+            for field in required_fields:
+                if not data[field]:
+                    messagebox.showerror("Ошибка", f"Заполните поле: {field}")
+                    return
+            
+            headers = {"token": self.auth_token}
+            response = requests.post(f"{API_BASE_URL}/admin/cars/", json=data, headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Автомобиль успешно добавлен!")
+                self.show_admin_cars_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка добавления автомобиля")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except ValueError:
+            messagebox.showerror("Ошибка", "Пробег и цена должны быть числами")
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def load_and_display_all_cars(self, parent_frame):
+        """Загрузить и отобразить все автомобили для администратора"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/admin/cars/", headers=headers)
+            
+            if response.status_code == 200:
+                cars = response.json()
+                
+                if not cars:
+                    no_cars_label = tk.Label(parent_frame, 
+                                        text="В системе нет автомобилей",
+                                        bg=self.colors['light'], fg='#7f8c8d',
+                                        font=('Arial', 11))
+                    no_cars_label.pack(pady=20)
+                    return
+
+                container, scrollable_frame, canvas, bind_scroll_to_children = self.create_scrollable_frame(parent_frame)
+                container.pack(fill=tk.BOTH, expand=True)
+
+                self.create_admin_cars_grid(scrollable_frame, cars)
+
+                bind_scroll_to_children(scrollable_frame)
+
+                canvas.update_idletasks()
+                canvas.configure(scrollregion=canvas.bbox("all"))
+                
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки автомобилей")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def load_and_display_all_anketi(self, parent_frame):
+        """Загрузить и отобразить все анкеты для администратора"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/admin/anketi/", headers=headers)
+            
+            if response.status_code == 200:
+                anketi = response.json()
+                
+                if not anketi:
+                    no_anketi_label = tk.Label(parent_frame, 
+                                            text="Нет анкет от пользователей",
+                                            bg=self.colors['light'], fg='#7f8c8d',
+                                            font=('Arial', 11))
+                    no_anketi_label.pack(pady=20)
+                    return
+
+                container, scrollable_frame, canvas, bind_scroll_to_children = self.create_scrollable_frame(parent_frame)
+                container.pack(fill=tk.BOTH, expand=True)
+
+                self.create_admin_anketi_list(scrollable_frame, anketi)
+
+                bind_scroll_to_children(scrollable_frame)
+
+                canvas.update_idletasks()
+                canvas.configure(scrollregion=canvas.bbox("all"))
+                
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки анкет")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def create_admin_cars_grid(self, parent, cars):
+        """Создать сетку автомобилей для администратора с кнопками управления"""
+        columns = 4
+        
+        for i, car in enumerate(cars):
+            row = i // columns
+            col = i % columns
+
+            card_frame = self.create_admin_car_card(parent, car)
+            card_frame.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
+
+            parent.grid_rowconfigure(row, weight=1)
+            parent.grid_columnconfigure(col, weight=1)
+
+    def create_admin_car_card(self, parent, car):
+        """Создать карточку автомобиля для администратора"""
+        card_frame = tk.Frame(parent, bg='#ffffff', relief='solid', bd=1, padx=10, pady=10)
+        card_frame.config(width=250, height=180)
+        card_frame.pack_propagate(False)
+
+        info_frame = tk.Frame(card_frame, bg='#ffffff')
+        info_frame.pack(fill=tk.BOTH, expand=True)
+
+        stamp_model = f"{car.get('stamp', '')} {car.get('model', '')}"
+        if len(stamp_model) > 20:
+            stamp_model = stamp_model[:20] + "..."
+            
+        stamp_model_label = tk.Label(info_frame, 
+                                    text=f"🚗 {stamp_model}",
+                                    bg='#ffffff', fg=self.colors['dark'],
+                                    font=('Arial', 10, 'bold'), anchor='w')
+        stamp_model_label.pack(fill=tk.X, pady=(0, 3))
+
+        status_label = tk.Label(info_frame, 
+                            text=f"📊 Статус: {car.get('status', '')}",
+                            bg='#ffffff', fg='#2c3e50',
+                            font=('Arial', 8), anchor='w')
+        status_label.pack(fill=tk.X, pady=1)
+
+        details = [
+            f"📏 Пробег: {car.get('run_km', 0):,} км".replace(",", " "),
+            f"💰 Стоимость:  {car.get('price', 0):,} руб".replace(",", " "),
+        ]
+        
+        for detail in details:
+            detail_label = tk.Label(info_frame, text=detail,
+                                bg='#ffffff', fg='#2c3e50',
+                                font=('Arial', 8), anchor='w')
+            detail_label.pack(fill=tk.X, pady=1)
+
+        vin = car.get('vin', '')
+        vin_display = f"🔢 VIN: {vin[:8]}..." if len(vin) > 8 else f"🔢 VIN: {vin}"
+        vin_label = tk.Label(info_frame, text=vin_display,
+                            bg='#ffffff', fg='#2c3e50',
+                            font=('Arial', 8), anchor='w')
+        vin_label.pack(fill=tk.X, pady=1)
+
+        actions_frame = tk.Frame(card_frame, bg='#ffffff')
+        actions_frame.pack(fill=tk.X, pady=(5, 0))
+
+        edit_btn = ttk.Button(actions_frame, text="✏️Изменить",
+                            style='Secondary.TButton',
+                            command=lambda c=car: self.show_edit_car_form(c),
+                            width=10)
+        edit_btn.pack(side=tk.LEFT, padx=(0, 3), ipady=1, fill=tk.X, expand=True)
+
+        delete_btn = ttk.Button(actions_frame, text="🗑️Удалить",
+                            style='Danger.TButton',
+                            command=lambda c=car: self.confirm_delete_car(c),
+                            width=10)
+        delete_btn.pack(side=tk.LEFT, ipady=1, fill=tk.X, expand=True)
+        
+        return card_frame
+
+    def create_admin_anketi_list(self, parent, anketi):
+        """Создать список анкет для администратора"""
+        for anketa in anketi:
+            self.create_admin_anketa_card(parent, anketa)
+
+    def create_admin_anketa_card(self, parent, anketa):
+        """Создать карточку анкеты для администратора"""
+        card_frame = tk.Frame(parent, bg='#ffffff', relief='solid', bd=1, padx=15, pady=15)
+        card_frame.pack(fill=tk.X, pady=8, padx=5)
+
+        info_frame = tk.Frame(card_frame, bg='#ffffff')
+        info_frame.pack(fill=tk.X)
+
+        user_info = f"👤 {anketa.get('user_name', '')} ({anketa.get('user_phone', '')})"
+        user_label = tk.Label(info_frame, text=user_info,
+                            bg='#ffffff', fg=self.colors['dark'],
+                            font=('Arial', 11, 'bold'), anchor='w')
+        user_label.pack(fill=tk.X, pady=(0, 5))
+
+        car_info = f"🚗 {anketa.get('stamp', '')} {anketa.get('model_car', '')}"
+        car_label = tk.Label(info_frame, text=car_info,
+                            bg='#ffffff', fg='#2c3e50',
+                            font=('Arial', 10), anchor='w')
+        car_label.pack(fill=tk.X, pady=2)
+
+        details = [
+            f"📏 Пробег: {anketa.get('run', 0):,} км".replace(",", " "),
+            f"💰 Предлагаемая цена: {anketa.get('price', 0):,} руб".replace(",", " "),
+            f"🔢 VIN: {anketa.get('vin', '')}"
+        ]
+        
+        for detail in details:
+            detail_label = tk.Label(info_frame, text=detail,
+                                bg='#ffffff', fg='#2c3e50',
+                                font=('Arial', 9), anchor='w')
+            detail_label.pack(fill=tk.X, pady=1)
+
+        description = anketa.get('description', '')
+        if description:
+            desc_label = tk.Label(info_frame, text=f"📄 Описание: {description}",
+                                bg='#ffffff', fg='#7f8c8d',
+                                font=('Arial', 8), anchor='w', justify=tk.LEFT, wraplength=500)
+            desc_label.pack(fill=tk.X, pady=(5, 0))
+        
+        accept_btn = ttk.Button(card_frame, text="✅ Принять анкету",
+                            style='Success.TButton',
+                            command=lambda a=anketa: self.confirm_accept_anketa(a),
+                            width=20)
+        accept_btn.pack(fill=tk.X, pady=(10, 0), ipady=5)
+
+    def show_edit_car_form(self, car):
+        """Форма редактирования автомобиля"""
+        self.clear_window()
+        self.current_editing_car = car
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(expand=True)
+        
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Редактирование автомобиля", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+        
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад к управлению автомобилями",
+                            style='Secondary.TButton',
+                            command=self.show_admin_cars_management,
+                            width=37)
+        back_btn.pack(ipady=8, anchor='center')
+        
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        form_frame = tk.Frame(card, bg=self.colors['light'])
+        form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        
+        fields = [
+            ("Пробег (км)", "edit_run", str(car.get('run_km', 0))),
+            ("Цена (руб)", "edit_price", str(car.get('price', 0))),
+            ("Описание", "edit_description", car.get('description', ''))
+        ]
+        
+        self.edit_car_entries = {}
+        
+        for i, (label, field_name, current_value) in enumerate(fields):
+            field_container = tk.Frame(form_frame, bg=self.colors['light'])
+            field_container.pack(fill=tk.X, pady=8)
+            
+            lbl = tk.Label(field_container, text=label, bg=self.colors['light'], 
+                        fg=self.colors['dark'], font=('Arial', 10, 'bold'),
+                        anchor='w')
+            lbl.pack(fill=tk.X, pady=(0, 5))
+            
+            if field_name == "edit_description":
+                entry = tk.Text(field_container, font=('Arial', 11), height=3, wrap=tk.WORD)
+                entry.insert('1.0', current_value)
+                entry.pack(fill=tk.X, pady=2)
+            else:
+                entry = ttk.Entry(field_container, font=('Arial', 11))
+                entry.insert(0, current_value)
+                if field_name in ["edit_run", "edit_price"]:
+                    entry.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
+                entry.pack(fill=tk.X, pady=2, ipady=6)
+            
+            self.edit_car_entries[field_name] = entry
+        
+        info_frame = tk.Frame(form_frame, bg=self.colors['light'])
+        info_frame.pack(fill=tk.X, pady=15)
+        
+        info_text = f"🚗 {car.get('stamp', '')} {car.get('model', '')}\n🔢 VIN: {car.get('vin', '')}\n📊 Статус: {car.get('status', '')}"
+        info_label = tk.Label(info_frame, text=info_text,
+                            bg=self.colors['light'], fg='#2c3e50',
+                            font=('Arial', 11), anchor='w', justify=tk.LEFT)
+        info_label.pack(fill=tk.X)
+
+        btn_frame = tk.Frame(card, bg=self.colors['light'])
+        btn_frame.pack(fill=tk.X, pady=(20, 10))
+        
+        save_btn = ttk.Button(btn_frame, text="💾 Сохранить изменения", 
+                            style='Success.TButton', 
+                            command=self.perform_edit_car)
+        save_btn.pack(fill=tk.X, pady=6, ipady=8)
+        
+
+        cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
+                            style='Secondary.TButton', 
+                            command=self.show_admin_cars_management)
+        cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
+
+    def perform_edit_car(self):
+        """Редактировать автомобиль"""
+        try:
+            data = {}
+
+            if self.edit_car_entries["edit_run"].get():
+                data["run"] = int(self.edit_car_entries["edit_run"].get())
+            
+            if self.edit_car_entries["edit_price"].get():
+                data["price"] = int(self.edit_car_entries["edit_price"].get())
+            
+            description = self.edit_car_entries["edit_description"].get("1.0", "end-1c").strip()
+            if description != self.current_editing_car.get('description', ''):
+                data["description"] = description
+            
+            if not data:
+                messagebox.showinfo("Информация", "Нет изменений для сохранения")
+                return
+            
+            headers = {"token": self.auth_token}
+            car_id = self.current_editing_car['id']
+            response = requests.put(f"{API_BASE_URL}/admin/cars/{car_id}", json=data, headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Автомобиль успешно обновлен!")
+                self.show_admin_cars_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка обновления автомобиля")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except ValueError:
+            messagebox.showerror("Ошибка", "Пробег и цена должны быть числами")
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+
+    def confirm_delete_car(self, car):
+        """Подтверждение удаления автомобиля"""
+        result = messagebox.askyesno(
+            "Подтверждение удаления", 
+            f"Вы уверены, что хотите удалить автомобиль?\n\n"
+            f"Марка: {car.get('stamp', '')}\n"
+            f"Модель: {car.get('model', '')}\n"
+            f"VIN: {car.get('vin', '')}",
+            icon='warning'
+        )
+        
+        if result:
+            self.perform_delete_car(car['id'])
+
+    def perform_delete_car(self, car_id):
+        """Удалить автомобиль"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.delete(f"{API_BASE_URL}/admin/cars/{car_id}", headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Автомобиль успешно удален!")
+                self.show_admin_cars_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка удаления автомобиля")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def confirm_accept_anketa(self, anketa):
+        """Подтверждение принятия анкеты"""
+        result = messagebox.askyesno(
+            "Подтверждение принятия", 
+            f"Вы уверены, что хотите принять эту анкету?\n\n"
+            f"Пользователь: {anketa.get('user_name', '')}\n"
+            f"Автомобиль: {anketa.get('stamp', '')} {anketa.get('model_car', '')}\n"
+            f"Цена: {anketa.get('price', 0):,} руб",
+            icon='question'
+        )
+        
+        if result:
+            self.perform_accept_anketa(anketa['id'])
+
+    def perform_accept_anketa(self, anketa_id):
+        """Принять анкету (покупка автомобиля у пользователя)"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.post(f"{API_BASE_URL}/admin/anketi/{anketa_id}/accept", headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Анкета принята, автомобиль добавлен в базу!")
+                self.show_admin_anketi_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка принятия анкеты")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+
+    def create_scrollable_frame(self, parent):
+        """Создать скроллируемую область с правильной работой скроллбара"""
+        container = tk.Frame(parent, bg=self.colors['light'])
+        
+        canvas = tk.Canvas(container, bg=self.colors['light'], highlightthickness=0)
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg=self.colors['light'])
+
+        canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        
+        def configure_scroll_region(event=None):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            canvas.itemconfig(canvas_window, width=canvas.winfo_width())
+        
+        def on_mousewheel(event):
+            current_pos = canvas.yview()
+
+            if canvas.bbox("all"):
+                content_height = canvas.bbox("all")[3]
+                canvas_height = canvas.winfo_height()
+                if content_height <= canvas_height:
+                    return
+
+                max_scroll = (content_height - canvas_height) / content_height
+
+                scroll_direction = -1 if event.delta > 0 else 1
+                scroll_amount = 0.1 
+
+                new_pos = current_pos[0] + scroll_direction * scroll_amount
+
+                if new_pos < 0:
+                    new_pos = 0
+                elif new_pos > max_scroll:
+                    new_pos = max_scroll
+
+                canvas.yview_moveto(new_pos)
+
+        scrollable_frame.bind("<Configure>", configure_scroll_region)
+        canvas.bind("<Configure>", configure_scroll_region)
+
+        def bind_scroll(event):
+            on_mousewheel(event)
+
+        canvas.bind("<MouseWheel>", bind_scroll)
+        scrollable_frame.bind("<MouseWheel>", bind_scroll)
+
+        def bind_scroll_to_children(widget):
+            widget.bind("<MouseWheel>", bind_scroll)
+            for child in widget.winfo_children():
+                bind_scroll_to_children(child)
+        
+        bind_scroll_to_children(scrollable_frame)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        return container, scrollable_frame, canvas, bind_scroll_to_children
+
+
+    def show_stamp_management(self):
+        """Управление марками автомобилей для администратора"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Управление марками автомобилей", 
+                                style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        management_header = tk.Label(card, text="🏷️ Управление марками автомобилей", 
+                                    bg=self.colors['light'], fg=self.colors['dark'],
+                                    font=('Arial', 14, 'bold'), anchor='w')
+        management_header.pack(fill=tk.X, pady=(0, 15))
+
+        actions_frame = tk.Frame(card, bg=self.colors['light'])
+        actions_frame.pack(fill=tk.X, pady=10)
+
+        buttons_container = tk.Frame(actions_frame, bg=self.colors['light'])
+        buttons_container.pack(fill=tk.X)
+        
+        create_btn = ttk.Button(buttons_container, text="➕ Добавить марку",
+                            style='Success.TButton',
+                            command=self.show_create_stamp_form,
+                            width=20)
+        create_btn.pack(side=tk.LEFT, padx=(0, 10), ipady=8)
+        
+        edit_btn = ttk.Button(buttons_container, text="✏️ Редактировать",
+                            style='Accent.TButton',
+                            command=self.show_edit_stamp_form,
+                            width=20)
+        edit_btn.pack(side=tk.LEFT, padx=(0, 10), ipady=8)
+        
+        delete_btn = ttk.Button(buttons_container, text="🗑️ Удалить",
+                            style='Danger.TButton',
+                            command=self.confirm_delete_stamp,
+                            width=20)
+        delete_btn.pack(side=tk.LEFT, ipady=8)
+
+        self.selected_stamp_info = tk.Label(actions_frame, 
+                                        text="Выберите марку из таблицы",
+                                        bg=self.colors['light'], fg='#7f8c8d',
+                                        font=('Arial', 10), anchor='w')
+        self.selected_stamp_info.pack(fill=tk.X, pady=(10, 0))
+
+        separator = ttk.Separator(card, orient='horizontal')
+        separator.pack(fill=tk.X, pady=20)
+
+        table_frame = tk.Frame(card, bg=self.colors['light'])
+        table_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        table_header = tk.Label(table_frame, text="Список марок автомобилей:",
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 12, 'bold'), anchor='w')
+        table_header.pack(fill=tk.X, pady=(0, 10))
+
+        self.load_and_display_stamps_table(table_frame)
+
+    def load_and_display_stamps_table(self, parent_frame):
+        """Загрузить и отобразить таблицу марок с Treeview"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/admin/stamps/", headers=headers)
+            
+            if response.status_code == 200:
+                stamps = response.json()
+                
+                if not stamps:
+                    no_stamps_label = tk.Label(parent_frame, 
+                                            text="В системе нет марок автомобилей",
+                                            bg=self.colors['light'], fg='#7f8c8d',
+                                            font=('Arial', 11))
+                    no_stamps_label.pack(pady=20)
+                    return
+
+                self.create_stamps_treeview(parent_frame, stamps)
+                
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки марок")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def create_stamps_treeview(self, parent, stamps):
+        """Создать Treeview для отображения марок"""
+        tree_frame = tk.Frame(parent, bg=self.colors['light'])
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+
+        v_scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.stamps_tree = ttk.Treeview(
+            tree_frame,
+            columns=('ID', 'Название марки'),
+            show='headings',
+            yscrollcommand=v_scrollbar.set,
+            height=12
+        )
+
+        v_scrollbar.config(command=self.stamps_tree.yview)
+
+        self.stamps_tree.heading('ID', text='ID', anchor=tk.CENTER)
+        self.stamps_tree.heading('Название марки', text='Название марки', anchor=tk.W)
+
+        self.stamps_tree.column('ID', width=80, minwidth=60)
+        self.stamps_tree.column('Название марки', width=300, minwidth=200)
+
+        self.stamps_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        for stamp in stamps:
+            self.stamps_tree.insert(
+                '', 
+                tk.END, 
+                values=(
+                    stamp['id'],
+                    stamp['stamp']
+                )
+            )
+
+        self.stamps_tree.bind('<<TreeviewSelect>>', self.on_stamp_select)
+
+        self.configure_treeview_style()
+
+    def on_stamp_select(self, event):
+        """Обработчик выбора марки в Treeview"""
+        selected_items = self.stamps_tree.selection()
+        if selected_items:
+            item = selected_items[0]
+            stamp_data = self.stamps_tree.item(item, 'values')
+            
+            self.selected_stamp = {
+                'id': int(stamp_data[0]),
+                'stamp': stamp_data[1]
+            }
+            
+            self.selected_stamp_info.config(
+                text=f"Выбрана: {self.selected_stamp['stamp']} (ID: {self.selected_stamp['id']})",
+                fg=self.colors['dark']
+            )
+
+    def show_create_stamp_form(self):
+        """Показать форму создания марки"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(expand=True)
+        
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Добавление марки автомобиля", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+        
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад к управлению марками",
+                            style='Secondary.TButton',
+                            command=self.show_stamp_management,
+                            width=35)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        form_frame = tk.Frame(card, bg=self.colors['light'])
+        form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        
+        field_container = tk.Frame(form_frame, bg=self.colors['light'])
+        field_container.pack(fill=tk.X, pady=20)
+        
+        lbl = tk.Label(field_container, text="Название марки", bg=self.colors['light'], 
+                    fg=self.colors['dark'], font=('Arial', 12, 'bold'),
+                    anchor='w')
+        lbl.pack(fill=tk.X, pady=(0, 10))
+        
+        self.create_stamp_entry = ttk.Entry(field_container, font=('Arial', 12))
+        self.create_stamp_entry.pack(fill=tk.X, pady=2, ipady=8)
+        
+        btn_frame = tk.Frame(card, bg=self.colors['light'])
+        btn_frame.pack(fill=tk.X, pady=(20, 10))
+
+        save_btn = ttk.Button(btn_frame, text="💾 Добавить марку", 
+                            style='Success.TButton', 
+                            command=self.perform_create_stamp)
+        save_btn.pack(fill=tk.X, pady=6, ipady=10)
+
+        cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
+                            style='Secondary.TButton', 
+                            command=self.show_stamp_management)
+        cancel_btn.pack(fill=tk.X, pady=6, ipady=8)
+
+    def show_edit_stamp_form(self):
+        """Показать форму редактирования марки"""
+        if not hasattr(self, 'selected_stamp') or not self.selected_stamp:
+            messagebox.showwarning("Внимание", "Сначала выберите марку из таблицы")
+            return
+        
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(expand=True)
+        
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Редактирование марки автомобиля", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+        
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад к управлению марками",
+                            style='Secondary.TButton',
+                            command=self.show_stamp_management,
+                            width=35)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        form_frame = tk.Frame(card, bg=self.colors['light'])
+        form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        info_frame = tk.Frame(form_frame, bg=self.colors['light'])
+        info_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        info_text = f"Редактирование марки:\nID: {self.selected_stamp['id']}"
+        info_label = tk.Label(info_frame, text=info_text,
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 11, 'bold'), anchor='w', justify=tk.LEFT)
+        info_label.pack(fill=tk.X)
+
+        field_container = tk.Frame(form_frame, bg=self.colors['light'])
+        field_container.pack(fill=tk.X, pady=20)
+        
+        lbl = tk.Label(field_container, text="Название марки", bg=self.colors['light'], 
+                    fg=self.colors['dark'], font=('Arial', 12, 'bold'),
+                    anchor='w')
+        lbl.pack(fill=tk.X, pady=(0, 10))
+        
+        self.edit_stamp_entry = ttk.Entry(field_container, font=('Arial', 12))
+        self.edit_stamp_entry.insert(0, self.selected_stamp['stamp'])
+        self.edit_stamp_entry.pack(fill=tk.X, pady=2, ipady=8)
+
+        btn_frame = tk.Frame(card, bg=self.colors['light'])
+        btn_frame.pack(fill=tk.X, pady=(20, 10))
+
+        save_btn = ttk.Button(btn_frame, text="💾 Сохранить изменения", 
+                            style='Success.TButton', 
+                            command=self.perform_edit_stamp)
+        save_btn.pack(fill=tk.X, pady=6, ipady=10)
+
+        cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
+                            style='Secondary.TButton', 
+                            command=self.show_stamp_management)
+        cancel_btn.pack(fill=tk.X, pady=6, ipady=8)
+
+    def perform_create_stamp(self):
+        """Создать новую марку"""
+        try:
+            stamp_name = self.create_stamp_entry.get().strip()
+            
+            if not stamp_name:
+                messagebox.showerror("Ошибка", "Введите название марки")
+                return
+            
+            data = {"stamp": stamp_name}
+            
+            headers = {"token": self.auth_token}
+            response = requests.post(f"{API_BASE_URL}/admin/stamps/", json=data, headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Марка успешно создана!")
+                self.show_stamp_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка создания марки")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def perform_edit_stamp(self):
+        """Редактировать марку"""
+        try:
+            stamp_name = self.edit_stamp_entry.get().strip()
+            
+            if not stamp_name:
+                messagebox.showerror("Ошибка", "Введите название марки")
+                return
+            
+            data = {"stamp": stamp_name}
+            
+            headers = {"token": self.auth_token}
+            stamp_id = self.selected_stamp['id']
+            response = requests.put(f"{API_BASE_URL}/admin/stamps/{stamp_id}", json=data, headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Марка успешно обновлена!")
+                self.show_stamp_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка обновления марки")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def confirm_delete_stamp(self):
+        """Подтверждение удаления марки"""
+        if not hasattr(self, 'selected_stamp') or not self.selected_stamp:
+            messagebox.showwarning("Внимание", "Сначала выберите марку из таблицы")
+            return
+        
+        result = messagebox.askyesno(
+            "Подтверждение удаления", 
+            f"Вы уверены, что хотите удалить марку?\n\n"
+            f"ID: {self.selected_stamp['id']}\n"
+            f"Название: {self.selected_stamp['stamp']}",
+            icon='warning'
+        )
+        
+        if result:
+            self.perform_delete_stamp()
+
+    def perform_delete_stamp(self):
+        """Удалить марку"""
+        try:
+            headers = {"token": self.auth_token}
+            stamp_id = self.selected_stamp['id']
+            response = requests.delete(f"{API_BASE_URL}/admin/stamps/{stamp_id}", 
+                                    headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Марка успешно удалена!")
+                if hasattr(self, 'selected_stamp'):
+                    self.selected_stamp = None
+                self.show_stamp_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка удаления марки")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def show_model_management(self):
+        """Управление моделями автомобилей для администратора"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Управление моделями автомобилей", 
+                                style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        management_header = tk.Label(card, text="🚙 Управление моделями автомобилей", 
+                                    bg=self.colors['light'], fg=self.colors['dark'],
+                                    font=('Arial', 14, 'bold'), anchor='w')
+        management_header.pack(fill=tk.X, pady=(0, 15))
+
+        actions_frame = tk.Frame(card, bg=self.colors['light'])
+        actions_frame.pack(fill=tk.X, pady=10)
+
+        buttons_container = tk.Frame(actions_frame, bg=self.colors['light'])
+        buttons_container.pack(fill=tk.X)
+        
+        create_btn = ttk.Button(buttons_container, text="➕ Добавить модель",
+                            style='Success.TButton',
+                            command=self.show_create_model_form,
+                            width=20)
+        create_btn.pack(side=tk.LEFT, padx=(0, 10), ipady=8)
+        
+        edit_btn = ttk.Button(buttons_container, text="✏️ Редактировать",
+                            style='Accent.TButton',
+                            command=self.show_edit_model_form,
+                            width=20)
+        edit_btn.pack(side=tk.LEFT, padx=(0, 10), ipady=8)
+        
+        delete_btn = ttk.Button(buttons_container, text="🗑️ Удалить",
+                            style='Danger.TButton',
+                            command=self.confirm_delete_model,
+                            width=20)
+        delete_btn.pack(side=tk.LEFT, ipady=8)
+
+        self.selected_model_info = tk.Label(actions_frame, 
+                                        text="Выберите модель из таблицы",
+                                        bg=self.colors['light'], fg='#7f8c8d',
+                                        font=('Arial', 10), anchor='w')
+        self.selected_model_info.pack(fill=tk.X, pady=(10, 0))
+
+        separator = ttk.Separator(card, orient='horizontal')
+        separator.pack(fill=tk.X, pady=20)
+
+        table_frame = tk.Frame(card, bg=self.colors['light'])
+        table_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        table_header = tk.Label(table_frame, text="Список моделей автомобилей:",
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 12, 'bold'), anchor='w')
+        table_header.pack(fill=tk.X, pady=(0, 10))
+
+        self.load_and_display_models_table(table_frame)
+
+    def load_and_display_models_table(self, parent_frame):
+        """Загрузить и отобразить таблицу моделей с Treeview"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/admin/models/", headers=headers)
+            
+            if response.status_code == 200:
+                models = response.json()
+                
+                if not models:
+                    no_models_label = tk.Label(parent_frame, 
+                                            text="В системе нет моделей автомобилей",
+                                            bg=self.colors['light'], fg='#7f8c8d',
+                                            font=('Arial', 11))
+                    no_models_label.pack(pady=20)
+                    return
+
+                self.create_models_treeview(parent_frame, models)
+                
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки моделей")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def create_models_treeview(self, parent, models):
+        """Создать Treeview для отображения моделей"""
+        tree_frame = tk.Frame(parent, bg=self.colors['light'])
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+
+        v_scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.models_tree = ttk.Treeview(
+            tree_frame,
+            columns=('ID', 'Название модели'),
+            show='headings',
+            yscrollcommand=v_scrollbar.set,
+            height=12
+        )
+
+        v_scrollbar.config(command=self.models_tree.yview)
+
+        self.models_tree.heading('ID', text='ID', anchor=tk.CENTER)
+        self.models_tree.heading('Название модели', text='Название модели', anchor=tk.W)
+
+        self.models_tree.column('ID', width=80, minwidth=60)
+        self.models_tree.column('Название модели', width=300, minwidth=200)
+
+        self.models_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        for model in models:
+            self.models_tree.insert(
+                '', 
+                tk.END, 
+                values=(
+                    model['id'],
+                    model['model_car']
+                )
+            )
+
+        self.models_tree.bind('<<TreeviewSelect>>', self.on_model_select)
+
+        self.configure_treeview_style()
+
+    def on_model_select(self, event):
+        """Обработчик выбора модели в Treeview"""
+        selected_items = self.models_tree.selection()
+        if selected_items:
+            item = selected_items[0]
+            model_data = self.models_tree.item(item, 'values')
+            
+            self.selected_model = {
+                'id': int(model_data[0]),
+                'model_car': model_data[1]
+            }
+            
+            self.selected_model_info.config(
+                text=f"Выбрана: {self.selected_model['model_car']} (ID: {self.selected_model['id']})",
+                fg=self.colors['dark']
+            )
+
+    def show_create_model_form(self):
+        """Показать форму создания модели"""
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(expand=True)
+        
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Добавление модели автомобиля", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+        
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад к управлению моделями",
+                            style='Secondary.TButton',
+                            command=self.show_model_management,
+                            width=35)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        form_frame = tk.Frame(card, bg=self.colors['light'])
+        form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        field_container = tk.Frame(form_frame, bg=self.colors['light'])
+        field_container.pack(fill=tk.X, pady=20)
+        
+        lbl = tk.Label(field_container, text="Название модели", bg=self.colors['light'], 
+                    fg=self.colors['dark'], font=('Arial', 12, 'bold'),
+                    anchor='w')
+        lbl.pack(fill=tk.X, pady=(0, 10))
+        
+        self.create_model_entry = ttk.Entry(field_container, font=('Arial', 12))
+        self.create_model_entry.pack(fill=tk.X, pady=2, ipady=8)
+
+        btn_frame = tk.Frame(card, bg=self.colors['light'])
+        btn_frame.pack(fill=tk.X, pady=(20, 10))
+
+        save_btn = ttk.Button(btn_frame, text="💾 Добавить модель", 
+                            style='Success.TButton', 
+                            command=self.perform_create_model)
+        save_btn.pack(fill=tk.X, pady=6, ipady=10)
+
+        cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
+                            style='Secondary.TButton', 
+                            command=self.show_model_management)
+        cancel_btn.pack(fill=tk.X, pady=6, ipady=8)
+
+    def show_edit_model_form(self):
+        """Показать форму редактирования модели"""
+        if not hasattr(self, 'selected_model') or not self.selected_model:
+            messagebox.showwarning("Внимание", "Сначала выберите модель из таблицы")
+            return
+        
+        self.clear_window()
+        
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(expand=True)
+        
+        header_frame = ttk.Frame(main_frame)
+        header_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        header_label = ttk.Label(header_frame, text="Редактирование модели автомобиля", 
+                            style='Header.TLabel')
+        header_label.pack(pady=(10, 5))
+        
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад к управлению моделями",
+                            style='Secondary.TButton',
+                            command=self.show_model_management,
+                            width=35)
+        back_btn.pack(ipady=8, anchor='center')
+
+        card = self.create_card_frame(main_frame)
+        card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        form_frame = tk.Frame(card, bg=self.colors['light'])
+        form_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        info_frame = tk.Frame(form_frame, bg=self.colors['light'])
+        info_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        info_text = f"Редактирование модели:\nID: {self.selected_model['id']}"
+        info_label = tk.Label(info_frame, text=info_text,
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 11, 'bold'), anchor='w', justify=tk.LEFT)
+        info_label.pack(fill=tk.X)
+
+        field_container = tk.Frame(form_frame, bg=self.colors['light'])
+        field_container.pack(fill=tk.X, pady=20)
+        
+        lbl = tk.Label(field_container, text="Название модели", bg=self.colors['light'], 
+                    fg=self.colors['dark'], font=('Arial', 12, 'bold'),
+                    anchor='w')
+        lbl.pack(fill=tk.X, pady=(0, 10))
+        
+        self.edit_model_entry = ttk.Entry(field_container, font=('Arial', 12))
+        self.edit_model_entry.insert(0, self.selected_model['model_car'])
+        self.edit_model_entry.pack(fill=tk.X, pady=2, ipady=8)
+
+        btn_frame = tk.Frame(card, bg=self.colors['light'])
+        btn_frame.pack(fill=tk.X, pady=(20, 10))
+
+        save_btn = ttk.Button(btn_frame, text="💾 Сохранить изменения", 
+                            style='Success.TButton', 
+                            command=self.perform_edit_model)
+        save_btn.pack(fill=tk.X, pady=6, ipady=10)
+        
+        cancel_btn = ttk.Button(btn_frame, text="❌ Отмена", 
+                            style='Secondary.TButton', 
+                            command=self.show_model_management)
+        cancel_btn.pack(fill=tk.X, pady=6, ipady=8)
+
+    def perform_create_model(self):
+        """Создать новую модель"""
+        try:
+            model_name = self.create_model_entry.get().strip()
+            
+            if not model_name:
+                messagebox.showerror("Ошибка", "Введите название модели")
+                return
+            
+            data = {"model_car": model_name}
+            
+            headers = {"token": self.auth_token}
+            response = requests.post(f"{API_BASE_URL}/admin/models/", json=data, headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Модель успешно создана!")
+                self.show_model_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка создания модели")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def perform_edit_model(self):
+        """Редактировать модель"""
+        try:
+            model_name = self.edit_model_entry.get().strip()
+            
+            if not model_name:
+                messagebox.showerror("Ошибка", "Введите название модели")
+                return
+            
+            data = {"model_car": model_name}
+            
+            headers = {"token": self.auth_token}
+            model_id = self.selected_model['id']
+            response = requests.put(f"{API_BASE_URL}/admin/models/{model_id}", json=data, headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Модель успешно обновлена!")
+                self.show_model_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка обновления модели")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
+
+    def confirm_delete_model(self):
+        """Подтверждение удаления модели"""
+        if not hasattr(self, 'selected_model') or not self.selected_model:
+            messagebox.showwarning("Внимание", "Сначала выберите модель из таблицы")
+            return
+        
+        result = messagebox.askyesno(
+            "Подтверждение удаления", 
+            f"Вы уверены, что хотите удалить модель?\n\n"
+            f"ID: {self.selected_model['id']}\n"
+            f"Название: {self.selected_model['model_car']}",
+            icon='warning'
+        )
+        
+        if result:
+            self.perform_delete_model()
+
+    def perform_delete_model(self):
+        """Удалить модель"""
+        try:
+            headers = {"token": self.auth_token}
+            model_id = self.selected_model['id']
+            response = requests.delete(f"{API_BASE_URL}/admin/models/{model_id}", 
+                                    headers=headers)
+            
+            if response.status_code == 200:
+                messagebox.showinfo("Успех", "Модель успешно удалена!")
+                if hasattr(self, 'selected_model'):
+                    self.selected_model = None
+                self.show_model_management()
+            else:
+                error_msg = response.json().get("detail", "Ошибка удаления модели")
+                messagebox.showerror("Ошибка", error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
 
 if __name__ == "__main__":
     root = tk.Tk()

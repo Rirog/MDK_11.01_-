@@ -126,16 +126,6 @@ tables = [
     Anketa,
 ]
 
-roles = [
-    {"name": "Администратор"},
-    {"name": "Пользователь"}
-]
-
-status = [
-    {"status": "Доступен"},
-    {"status": "Продан"}
-]
-
 
 def initialize_database():
     try:
@@ -145,8 +135,6 @@ def initialize_database():
             safe=True
         )
         print('Tables is initialized')
-        Roles.insert_many(roles).execute()
-        Status.insert_many(status).execute()
     except Exception as e:
         print(f'Error initializing tables: {e}')
     finally:

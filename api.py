@@ -720,10 +720,10 @@ async def update_car(car_id: int, car_data: CarsUpdate, token: str = Header(...)
         raise http_exc
 
 
-@app.get("/admin/stamps/", tags=["Admin"])
+@app.get("/admin/stamps/", tags=["Users"])
 async def get_all_stamps(token: str = Header(...)):
     """Получение всех марок автомобилей"""
-    get_user_by_token(token, "Администратор")
+    get_user_by_token(token)
     try:
         stamps = Stamp.select()
         return [{
@@ -786,10 +786,10 @@ async def delete_stamp(stamp_id: int, token: str = Header(...)):
         raise http_exc
 
 
-@app.get("/admin/models/", tags=["Admin"])
+@app.get("/admin/models/", tags=["Users"])
 async def get_all_models(token: str = Header(...)):
     """Получение всех моделей автомобилей"""
-    get_user_by_token(token, "Администратор")
+    get_user_by_token(token)
     try:
         models = ModelCar.select()
         return [{
@@ -1162,3 +1162,5 @@ async def logout_user(token: str = Header(...)):
         return {'message': 'Вы успешно вышли из системы'}
     except HTTPException as http_exc:
         raise http_exc
+    
+
