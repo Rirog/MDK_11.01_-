@@ -2917,7 +2917,7 @@ class CarTradingApp:
                 canvas.configure(scrollregion=canvas.bbox("all"))
                 
             else:
-                error_msg = response.json().get("detail", "Ошибка загрузки автомобилей", )
+                error_msg = response.json().get("detail", "Ошибка загрузки автомобилей", ) # вот тут делать нало 
                 messagebox.showerror("Ошибка", error_msg)
                 
         except requests.exceptions.RequestException as e:
