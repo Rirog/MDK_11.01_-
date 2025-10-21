@@ -5,6 +5,7 @@ import json
 
 API_BASE_URL = "http://localhost:8000"
 
+
 class CarTradingApp:
     def __init__(self, root):
         self.root = root
@@ -2307,6 +2308,14 @@ class CarTradingApp:
             self.show_no_purchases_message(parent_frame)
             messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
 
+    def show_no_purchases_message(self, parent_frame):
+        """Показать сообщение об отсутствии покупок"""
+        no_purchases_label = tk.Label(parent_frame, 
+                                    text="У вас пока нет покупок",
+                                    bg=self.colors['light'], fg='#7f8c8d',
+                                    font=('Arial', 11))
+        no_purchases_label.pack(pady=20)
+
     def create_purchases_treeview(self, parent, purchases):
         """Создать Treeview для отображения покупок"""
         tree_frame = tk.Frame(parent, bg=self.colors['light'])
@@ -3840,9 +3849,9 @@ class CarTradingApp:
             if not model_name:
                 messagebox.showerror("Ошибка", "Введите название модели")
                 return
-            
+
             data = {"model_car": model_name}
-            
+
             headers = {"token": self.auth_token}
             model_id = self.selected_model['id']
             response = requests.put(f"{API_BASE_URL}/admin/models/{model_id}", json=data, headers=headers)
@@ -3870,7 +3879,7 @@ class CarTradingApp:
             f"Название: {self.selected_model['model_car']}",
             icon='warning'
         )
-        
+
         if result:
             self.perform_delete_model()
 
@@ -3897,4 +3906,4 @@ class CarTradingApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = CarTradingApp(root)
-    root.mainloop() 
+    root.mainloop()
