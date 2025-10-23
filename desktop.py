@@ -1,80 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import requests
+import json
 
 API_BASE_URL = "http://localhost:8000"
-
-
-class  FilterManager:
-    """Унивирсальный класс для сортировки и фильтрации"""
-
-    def __init__(self, parent, colors, on_update_callback):
-        self.parent = parent
-        self.colors = colors
-        self.on_update_callback = on_update_callback
-        self.filters = {}
-        self.sort_var = tk.StringVar(value="price_asc")
-        
-    def create_filter_frame(self, available_data=None):
-        """Создать компактный фрейм фильтров"""
-        filter_frame = tk.Frame(self.parent, bg=self.colors['light'])
-        filter_frame.pack(fill=tk.X, pady=(0, 15))
-
-        stamps = list(set(item.get('stamp', '') for item in (available_data or []) if item.get('stamp')))
-        stamps.sort()
-        row1 = tk.Frame(filter_frame, bg=self.colors['light'])
-        row1.pack(fill=tk.X, pady=5)
-        
-        tk.Label(row1, text="Марка:", bg=self.colors['light'], 
-                font=('Arial', 10)).pack(side=tk.LEFT, padx=(0, 5))
-        
-        self.stamp_var = tk.StringVar()
-        ttk.Combobox(row1, textvariable=self.stamp_var, values=stamps, 
-                    state="readonly", width=15).pack(side=tk.LEFT, padx=(0, 15))
-        
-        tk.Label(row1, text="Сортировка:", bg=self.colors['light'], 
-                font=('Arial', 10)).pack(side=tk.LEFT, padx=(0, 5))
-        
-        sort_options = ["Цена ↑", "Цена ↓", "Пробег ↑", "Пробег ↓", "Марка А-Я", "Марка Я-А"]
-        ttk.Combobox(row1, textvariable=self.sort_var, values=sort_options,
-                    state="readonly", width=12).pack(side=tk.LEFT, padx=(0, 15))
-
-        row2 = tk.Frame(filter_frame, bg=self.colors['light'])
-        row2.pack(fill=tk.X, pady=5)
-        
-        tk.Label(row2, text="Цена от:", bg=self.colors['light'], 
-                font=('Arial', 10)).pack(side=tk.LEFT, padx=(0, 5))
-        
-        self.min_price = tk.StringVar()
-        ttk.Entry(row2, textvariable=self.min_price, width=8).pack(side=tk.LEFT, padx=(0, 5))
-        
-        tk.Label(row2, text="до:", bg=self.colors['light'], 
-                font=('Arial', 10)).pack(side=tk.LEFT, padx=(0, 5))
-        
-        self.max_price = tk.StringVar()
-        ttk.Entry(row2, textvariable=self.max_price, width=8).pack(side=tk.LEFT, padx=(0, 15))
-        ttk.Button(row2, text="Применить", command=self.apply_filters, width=10).pack(side=tk.LEFT, padx=(0, 5))
-        ttk.Button(row2, text="Сбросить", command=self.reset_filters, width=10).pack(side=tk.LEFT)
-        
-        return filter_frame
-    
-    def apply_filters(self):
-        """Применить все фильтры"""
-        filters = {
-            'stamp': self.stamp_var.get(),
-            'min_price': self.min_price.get(),
-            'max_price': self.max_price.get(),
-            'sort': self.sort_var.get()
-        }
-        self.on_update_callback(filters)
-    
-    def reset_filters(self):
-        """Сбросить все фильтры"""
-        self.stamp_var.set('')
-        self.min_price.set('')
-        self.max_price.set('')
-        self.sort_var.set("Цена ↑")
-        self.apply_filters()
 
 
 class CarTradingApp:
@@ -92,8 +21,6 @@ class CarTradingApp:
         self.selected_user = None
         self.selected_stamp = None 
         self.selected_model = None 
-
-        self.current_data = {}
 
         self.setup_styles()
         self.show_auth_frame()
@@ -843,7 +770,7 @@ class CarTradingApp:
 
 
     def show_available_cars(self):
-        """Показать раздел доступных автомобилей с фильтрацией"""
+        """Показать раздел доступных автомобилей"""
         self.clear_window()
         
         main_frame = ttk.Frame(self.root, padding="20")
@@ -856,20 +783,32 @@ class CarTradingApp:
                                style='Header.TLabel')
         header_label.pack(pady=(10, 5))
 
-        back_btn = ttk.Button(header_frame, text="← Назад в главное меню",
+        back_frame = tk.Frame(header_frame, bg=self.colors['background'])
+        back_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
                              style='Secondary.TButton',
                              command=self.show_main_menu,
                              width=25)
-        back_btn.pack(ipady=8, pady=(0, 10))
+        back_btn.pack(ipady=8, anchor='center')
 
         card = self.create_card_frame(main_frame)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
 
-        tk.Label(card, text="🚗 Автомобили в продаже", 
-                bg=self.colors['light'], fg=self.colors['dark'],
-                font=('Arial', 14, 'bold'), anchor='w').pack(fill=tk.X, pady=(0, 15))
+        cars_header = tk.Label(card, text="🚗 Автомобили в продаже", 
+                              bg=self.colors['light'], fg=self.colors['dark'],
+                              font=('Arial', 14, 'bold'), anchor='w')
+        cars_header.pack(fill=tk.X, pady=(0, 15))
 
-        self.load_and_display_available_cars(card)
+        cars_list_frame = tk.Frame(card, bg=self.colors['light'])
+        cars_list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        list_header = tk.Label(cars_list_frame, text="Доступные для покупки автомобили:",
+                              bg=self.colors['light'], fg=self.colors['dark'],
+                              font=('Arial', 12, 'bold'), anchor='w')
+        list_header.pack(fill=tk.X, pady=(0, 10))
+
+        self.load_and_display_available_cars(cars_list_frame)
 
     def load_and_display_available_cars(self, parent_frame):
         """Загрузить и отобразить список доступных автомобилей со скроллбаром"""
@@ -879,16 +818,7 @@ class CarTradingApp:
             
             if response.status_code == 200:
                 cars = response.json()
-                self.current_data['cars'] = cars
-                filter_manager = FilterManager(parent_frame, self.colors, self.apply_car_filters)
-                filter_manager.create_filter_frame(cars)
-
-                list_frame = tk.Frame(parent_frame, bg=self.colors['light'])
-                list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-
-                self.apply_car_filters({
-                    'stamp': '', 'min_price': '', 'max_price': '', 'sort': 'Цена ↑'
-                }, list_frame, cars)
+                
                 if not cars:
                     no_cars_label = tk.Label(parent_frame, 
                                         text="В настоящее время нет доступных автомобилей для покупки",
@@ -965,75 +895,11 @@ class CarTradingApp:
                 configure_scroll_region()
                 
             else:
-                error_msg = response.json().get("detail", "Ошибка загрузки автомобилей", parent_frame)
+                error_msg = response.json().get("detail", "Ошибка загрузки автомобилей")
                 messagebox.showerror("Ошибка", error_msg)
                 
         except requests.exceptions.RequestException as e:
-            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}", parent_frame)
-    def apply_car_filters(self, filters, list_frame=None, data=None):
-        """Применить фильтры к автомобилям"""
-        if not list_frame:
-            return
-            
-        cars = data or self.current_data.get('cars', [])
-
-        filtered_cars = cars.copy()
-        
-        if filters['stamp']:
-            filtered_cars = [c for c in filtered_cars if c.get('stamp', '').lower() == filters['stamp'].lower()]
-        
-        if filters['min_price']:
-            try:
-                min_p = int(filters['min_price'])
-                filtered_cars = [c for c in filtered_cars if c.get('price', 0) >= min_p]
-            except ValueError:
-                pass
-                
-        if filters['max_price']:
-            try:
-                max_p = int(filters['max_price'])
-                filtered_cars = [c for c in filtered_cars if c.get('price', 0) <= max_p]
-            except ValueError:
-                pass
-
-        sort_map = {
-            "Цена ↑": lambda x: x.get('price', 0),
-            "Цена ↓": lambda x: -x.get('price', 0),
-            "Пробег ↑": lambda x: x.get('run_km', 0),
-            "Пробег ↓": lambda x: -x.get('run_km', 0),
-            "Марка А-Я": lambda x: x.get('stamp', '').lower(),
-            "Марка Я-А": lambda x: x.get('stamp', '').lower()[::-1]
-        }
-        
-        if filters['sort'] in sort_map:
-            filtered_cars.sort(key=sort_map[filters['sort']])
-
-        self.update_display(list_frame, filtered_cars, self.create_cars_grid, "автомобилей")
-
-    def update_display(self, parent, data, grid_method, data_type):
-        """Универсальное обновление отображения данных"""
-        # Очищаем предыдущее отображение
-        for widget in parent.winfo_children():
-            widget.destroy()
-        
-        if not data:
-            tk.Label(parent, text=f"Нет {data_type}, соответствующих фильтрам",
-                    bg=self.colors['light'], fg='#7f8c8d', font=('Arial', 11)).pack(pady=20)
-            return
-        
-        # Создаем скроллируемую область
-        container, scrollable_frame, canvas, _ = self.create_scrollable_frame(parent)
-        container.pack(fill=tk.BOTH, expand=True)
-        
-        # Используем переданный метод для создания сетки
-        grid_method(scrollable_frame, data)
-        
-        canvas.configure(scrollregion=canvas.bbox("all"))
-
-    def show_error(self, message, parent):
-        """Показать сообщение об ошибке"""
-        tk.Label(parent, text=message, bg=self.colors['light'], 
-                fg='#e74c3c', font=('Arial', 11)).pack(pady=20)
+            messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
 
     def create_cars_grid(self, parent, cars):
         """Создать сетку автомобилей 4xN"""
@@ -1779,7 +1645,6 @@ class CarTradingApp:
                             command=self.show_add_car_form,
                             width=30)
         add_btn.pack(ipady=10, anchor='center')
-
 
         separator = ttk.Separator(card, orient='horizontal')
         separator.pack(fill=tk.X, pady=20)
@@ -2888,16 +2753,7 @@ class CarTradingApp:
             
             if response.status_code == 200:
                 cars = response.json()
-                filter_manager = FilterManager(parent_frame, self.colors, 
-                                             lambda f: self.apply_car_filters(f, list_frame, cars))
-                filter_manager.create_filter_frame(cars)
-
-                list_frame = tk.Frame(parent_frame, bg=self.colors['light'])
-                list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-
-                self.apply_car_filters({
-                    'stamp': '', 'min_price': '', 'max_price': '', 'sort': 'Цена ↑'
-                }, list_frame, cars)
+                
                 if not cars:
                     no_cars_label = tk.Label(parent_frame, 
                                         text="В системе нет автомобилей",
@@ -2917,7 +2773,7 @@ class CarTradingApp:
                 canvas.configure(scrollregion=canvas.bbox("all"))
                 
             else:
-                error_msg = response.json().get("detail", "Ошибка загрузки автомобилей", ) # вот тут делать нало 
+                error_msg = response.json().get("detail", "Ошибка загрузки автомобилей")
                 messagebox.showerror("Ошибка", error_msg)
                 
         except requests.exceptions.RequestException as e:
