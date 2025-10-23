@@ -7,3 +7,5 @@ requests
 dotenv
 argon2-cffi
 cryptography
+pandas
+xlsxwriter
