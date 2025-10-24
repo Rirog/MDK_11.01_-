@@ -24,7 +24,7 @@ class CarTradingApp:
 
         self.setup_styles()
         self.show_auth_frame()
-    
+
     def center_window(self):
         """Центрирование окна на экране"""
         self.root.update_idletasks()
@@ -89,7 +89,142 @@ class CarTradingApp:
         card = tk.Frame(parent, bg=self.colors['light'], relief='raised', 
                        bd=1, padx=20, pady=20)
         return card
-    
+
+    def show_filter_sort_options(self, parent, filter_callback):
+        """Показать опции фильтрации и сортировки"""
+        filter_frame = tk.Frame(parent, bg=self.colors['light'])
+        filter_frame.pack(fill=tk.X, pady=(0, 15))
+
+        main_container = tk.Frame(filter_frame, bg=self.colors['light'])
+        main_container.pack(fill=tk.X)
+
+        filter_label = tk.Label(main_container, text="🔍 Фильтры и сортировка", 
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 11, 'bold'), anchor='w')
+        filter_label.pack(fill=tk.X, pady=(0, 8))
+
+        controls_frame = tk.Frame(main_container, bg=self.colors['light'])
+        controls_frame.pack(fill=tk.X)
+
+        stamp_frame = tk.Frame(controls_frame, bg=self.colors['light'])
+        stamp_frame.pack(side=tk.LEFT, padx=(0, 10))
+        
+        stamp_label = tk.Label(stamp_frame, text="Марка:", bg=self.colors['light'], 
+                            fg=self.colors['dark'], font=('Arial', 9))
+        stamp_label.pack(anchor='w')
+        
+        self.filter_stamp_combo = ttk.Combobox(stamp_frame, font=('Arial', 9), width=12)
+        self.filter_stamp_combo.pack(pady=(2, 0))
+        self.filter_stamp_combo.bind('<<ComboboxSelected>>', self.on_stamp_selected)
+
+        model_frame = tk.Frame(controls_frame, bg=self.colors['light'])
+        model_frame.pack(side=tk.LEFT, padx=(0, 10))
+        
+        model_label = tk.Label(model_frame, text="Модель:", bg=self.colors['light'], 
+                            fg=self.colors['dark'], font=('Arial', 9))
+        model_label.pack(anchor='w')
+        
+        self.filter_model_combo = ttk.Combobox(model_frame, font=('Arial', 9), width=12)
+        self.filter_model_combo.pack(pady=(2, 0))
+
+        price_frame = tk.Frame(controls_frame, bg=self.colors['light'])
+        price_frame.pack(side=tk.LEFT, padx=(0, 10))
+        
+        price_label = tk.Label(price_frame, text="Цена до:", bg=self.colors['light'], 
+                            fg=self.colors['dark'], font=('Arial', 9))
+        price_label.pack(anchor='w')
+        
+        self.filter_price_entry = ttk.Entry(price_frame, font=('Arial', 9), width=10)
+        self.filter_price_entry.pack(pady=(2, 0))
+
+        sort_frame = tk.Frame(controls_frame, bg=self.colors['light'])
+        sort_frame.pack(side=tk.LEFT, padx=(0, 10))
+        
+        sort_label = tk.Label(sort_frame, text="Сортировка:", bg=self.colors['light'], 
+                            fg=self.colors['dark'], font=('Arial', 9))
+        sort_label.pack(anchor='w')
+        
+        self.sort_combo = ttk.Combobox(sort_frame, font=('Arial', 9), width=15,
+                                    values=["Цена (по возрастанию)", "Цена (по убыванию)", 
+                                            "Пробег (по возрастанию)", "Пробег (по убыванию)"])
+        self.sort_combo.set("Цена (по возрастанию)")
+        self.sort_combo.pack(pady=(2, 0))
+
+        buttons_frame = tk.Frame(controls_frame, bg=self.colors['light'])
+        buttons_frame.pack(side=tk.LEFT, padx=(10, 0))
+        
+        apply_btn = ttk.Button(buttons_frame, text="Применить", 
+                            style='Accent.TButton',
+                            command=filter_callback,
+                            width=12)
+        apply_btn.pack(side=tk.LEFT, padx=(0, 5))
+        
+        reset_btn = ttk.Button(buttons_frame, text="Сбросить", 
+                            style='Secondary.TButton',
+                            command=self.reset_filters,
+                            width=12)
+        reset_btn.pack(side=tk.LEFT)
+        
+        return filter_frame
+
+    def on_stamp_selected(self, event=None):
+        """Обработчик выбора марки - обновляет список моделей"""
+        selected_stamp = self.filter_stamp_combo.get()
+        if selected_stamp and hasattr(self, 'original_cars_data'):
+            models = list(set(car.get('model', '') for car in self.original_cars_data 
+                            if car.get('stamp') == selected_stamp and car.get('model')))
+            self.filter_model_combo['values'] = models
+            self.filter_model_combo.set('')
+
+    def apply_car_filters(self, cars):
+        """Применить фильтры и сортировку к списку автомобилей"""
+        filtered_cars = cars.copy()
+
+        if hasattr(self, 'filter_stamp_combo') and self.filter_stamp_combo.get():
+            selected_stamp = self.filter_stamp_combo.get()
+            filtered_cars = [car for car in filtered_cars 
+                            if car.get('stamp') == selected_stamp]
+
+        if hasattr(self, 'filter_model_combo') and self.filter_model_combo.get():
+            selected_model = self.filter_model_combo.get()
+            filtered_cars = [car for car in filtered_cars 
+                            if car.get('model') == selected_model]
+
+        if hasattr(self, 'filter_price_entry') and self.filter_price_entry.get():
+            try:
+                max_price = int(self.filter_price_entry.get())
+                filtered_cars = [car for car in filtered_cars 
+                            if car.get('price', 0) <= max_price]
+            except ValueError:
+                pass
+
+        if hasattr(self, 'sort_combo'):
+            sort_option = self.sort_combo.get()
+            if sort_option == "Цена (по возрастанию)":
+                filtered_cars.sort(key=lambda x: x.get('price', 0))
+            elif sort_option == "Цена (по убыванию)":
+                filtered_cars.sort(key=lambda x: x.get('price', 0), reverse=True)
+            elif sort_option == "Пробег (по возрастанию)":
+                filtered_cars.sort(key=lambda x: x.get('run_km', 0))
+            elif sort_option == "Пробег (по убыванию)":
+                filtered_cars.sort(key=lambda x: x.get('run_km', 0), reverse=True)
+        
+        return filtered_cars
+
+    def reset_filters(self):
+        """Сбросить фильтры"""
+        if hasattr(self, 'filter_stamp_combo'):
+            self.filter_stamp_combo.set('')
+        if hasattr(self, 'filter_model_combo'):
+            self.filter_model_combo.set('')
+        if hasattr(self, 'filter_price_entry'):
+            self.filter_price_entry.delete(0, tk.END)
+        if hasattr(self, 'sort_combo'):
+            self.sort_combo.set("Цена (по возрастанию)")
+
+        if hasattr(self, 'current_filter_callback'):
+            self.current_filter_callback()
+
     def show_auth_frame(self):
         """Показать фрейм авторизации"""
         self.clear_window()
@@ -780,119 +915,81 @@ class CarTradingApp:
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         header_label = ttk.Label(header_frame, text="Доступные автомобили", 
-                               style='Header.TLabel')
+                            style='Header.TLabel')
         header_label.pack(pady=(10, 5))
 
         back_frame = tk.Frame(header_frame, bg=self.colors['background'])
         back_frame.pack(fill=tk.X, pady=(0, 10))
         
         back_btn = ttk.Button(back_frame, text="← Назад в главное меню",
-                             style='Secondary.TButton',
-                             command=self.show_main_menu,
-                             width=25)
+                            style='Secondary.TButton',
+                            command=self.show_main_menu,
+                            width=25)
         back_btn.pack(ipady=8, anchor='center')
 
         card = self.create_card_frame(main_frame)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
 
         cars_header = tk.Label(card, text="🚗 Автомобили в продаже", 
-                              bg=self.colors['light'], fg=self.colors['dark'],
-                              font=('Arial', 14, 'bold'), anchor='w')
+                            bg=self.colors['light'], fg=self.colors['dark'],
+                            font=('Arial', 14, 'bold'), anchor='w')
         cars_header.pack(fill=tk.X, pady=(0, 15))
 
+        self.current_filter_callback = lambda: self.refresh_cars_list(card)
+        filter_frame = self.show_filter_sort_options(card, self.current_filter_callback)
+        
         cars_list_frame = tk.Frame(card, bg=self.colors['light'])
         cars_list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
-        list_header = tk.Label(cars_list_frame, text="Доступные для покупки автомобили:",
-                              bg=self.colors['light'], fg=self.colors['dark'],
-                              font=('Arial', 12, 'bold'), anchor='w')
-        list_header.pack(fill=tk.X, pady=(0, 10))
+        self.load_and_display_available_cars(cars_list_frame)
+
+    def refresh_cars_list(self, parent_card):
+        """Обновить список автомобилей"""
+
+        for widget in parent_card.winfo_children():
+            if isinstance(widget, tk.Frame) and widget != parent_card.winfo_children()[1]:  # Пропускаем заголовок и фильтры
+                widget.destroy()
+                break
+
+        cars_list_frame = tk.Frame(parent_card, bg=self.colors['light'])
+        cars_list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
         self.load_and_display_available_cars(cars_list_frame)
 
     def load_and_display_available_cars(self, parent_frame):
-        """Загрузить и отобразить список доступных автомобилей со скроллбаром"""
+        """Загрузить и отобразить список доступных автомобилей"""
         try:
             headers = {"token": self.auth_token}
             response = requests.get(f"{API_BASE_URL}/users/cars/available", headers=headers)
             
             if response.status_code == 200:
                 cars = response.json()
+
+                self.original_cars_data = cars
+
+                if cars and hasattr(self, 'filter_stamp_combo'):
+                    stamps = list(set(car.get('stamp', '') for car in cars if car.get('stamp')))
+                    self.filter_stamp_combo['values'] = stamps
+
+                filtered_cars = self.apply_car_filters(cars)
                 
-                if not cars:
+                if not filtered_cars:
                     no_cars_label = tk.Label(parent_frame, 
-                                        text="В настоящее время нет доступных автомобилей для покупки",
+                                        text="По вашему запросу ничего не найдено",
                                         bg=self.colors['light'], fg='#7f8c8d',
                                         font=('Arial', 11))
                     no_cars_label.pack(pady=20)
                     return
 
-                container = tk.Frame(parent_frame, bg=self.colors['light'])
+                container, scrollable_frame, canvas, bind_scroll_to_children = self.create_scrollable_frame(parent_frame)
                 container.pack(fill=tk.BOTH, expand=True)
 
-                canvas = tk.Canvas(container, bg=self.colors['light'], highlightthickness=0)
-                scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
-                scrollable_frame = tk.Frame(canvas, bg=self.colors['light'])
+                self.create_cars_grid(scrollable_frame, filtered_cars)
 
-                canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-                
-                def configure_scroll_region(event=None):
-                    canvas.configure(scrollregion=canvas.bbox("all"))
-
-                    canvas.itemconfig(canvas_window, width=canvas.winfo_width())
-
-                    bbox = canvas.bbox("all")
-                    if bbox:
-                        canvas_height = canvas.winfo_height()
-                        content_height = bbox[3] - bbox[1]
-                        
-                        if content_height <= canvas_height:
-                            scrollbar.pack_forget()
-                            canvas.configure(yscrollcommand=None)
-                        else:
-                            scrollbar.pack(side="right", fill="y")
-                            canvas.configure(yscrollcommand=scrollbar.set)
-                
-                scrollable_frame.bind("<Configure>", configure_scroll_region)
-                canvas.bind("<Configure>", configure_scroll_region)
-                def on_mousewheel(event):
-                    bbox = canvas.bbox("all")
-                    if not bbox:
-                        return
-                    
-                    canvas_height = canvas.winfo_height()
-                    content_height = bbox[3] - bbox[1]
-
-                    if content_height <= canvas_height:
-                        return
-
-                    max_scroll = content_height - canvas_height
-                    current_scroll = canvas.yview()[0] * content_height
-
-                    scroll_delta = -1 * (event.delta // 120)
-                    new_scroll = current_scroll + scroll_delta * 50
-
-                    if new_scroll < 0:
-                        new_scroll = 0
-                    elif new_scroll > max_scroll:
-                        new_scroll = max_scroll
-                    
-                    canvas.yview_moveto(new_scroll / content_height)
-
-                def bind_scroll_to_widget(widget):
-                    widget.bind("<MouseWheel>", on_mousewheel)
-                    for child in widget.winfo_children():
-                        bind_scroll_to_widget(child)
-                
-                bind_scroll_to_widget(scrollable_frame)
-                bind_scroll_to_widget(canvas)
-
-                self.create_cars_grid(scrollable_frame, cars)
-
-                canvas.pack(side="left", fill="both", expand=True)
+                bind_scroll_to_children(scrollable_frame)
 
                 canvas.update_idletasks()
-                configure_scroll_region()
+                canvas.configure(scrollregion=canvas.bbox("all"))
                 
             else:
                 error_msg = response.json().get("detail", "Ошибка загрузки автомобилей")
@@ -1617,7 +1714,7 @@ class CarTradingApp:
         header_frame.pack(fill=tk.X, pady=(0, 20))
         
         header_label = ttk.Label(header_frame, text="Управление автомобилями", 
-                            style='Header.TLabel')
+                                style='Header.TLabel')
         header_label.pack(pady=(10, 5))
 
         back_frame = tk.Frame(header_frame, bg=self.colors['background'])
@@ -1649,13 +1746,25 @@ class CarTradingApp:
         separator = ttk.Separator(card, orient='horizontal')
         separator.pack(fill=tk.X, pady=20)
 
+        self.current_filter_callback = lambda: self.refresh_admin_cars_list(card)
+        filter_frame = self.show_filter_sort_options(card, self.current_filter_callback)
+        
         cars_list_frame = tk.Frame(card, bg=self.colors['light'])
         cars_list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
-        list_header = tk.Label(cars_list_frame, text="Все автомобили в системе:",
-                            bg=self.colors['light'], fg=self.colors['dark'],
-                            font=('Arial', 12, 'bold'), anchor='w')
-        list_header.pack(fill=tk.X, pady=(0, 10))
+        self.load_and_display_all_cars(cars_list_frame)
+
+    def refresh_admin_cars_list(self, parent_card):
+        """Обновить список автомобилей в админке"""
+        for widget in parent_card.winfo_children():
+            if isinstance(widget, tk.Frame) and widget not in [parent_card.winfo_children()[1], 
+                                                            parent_card.winfo_children()[2],
+                                                            parent_card.winfo_children()[3]]:
+                widget.destroy()
+                break
+
+        cars_list_frame = tk.Frame(parent_card, bg=self.colors['light'])
+        cars_list_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
         self.load_and_display_all_cars(cars_list_frame)
 
@@ -2753,10 +2862,19 @@ class CarTradingApp:
             
             if response.status_code == 200:
                 cars = response.json()
+
+                self.original_cars_data = cars
+
+                if cars:
+                    stamps = list(set(car.get('stamp', '') for car in cars if car.get('stamp')))
+                    if hasattr(self, 'filter_stamp_combo'):
+                        self.filter_stamp_combo['values'] = stamps
+
+                filtered_cars = self.apply_car_filters(cars)
                 
-                if not cars:
+                if not filtered_cars:
                     no_cars_label = tk.Label(parent_frame, 
-                                        text="В системе нет автомобилей",
+                                        text="По вашему запросу ничего не найдено",
                                         bg=self.colors['light'], fg='#7f8c8d',
                                         font=('Arial', 11))
                     no_cars_label.pack(pady=20)
@@ -2765,7 +2883,7 @@ class CarTradingApp:
                 container, scrollable_frame, canvas, bind_scroll_to_children = self.create_scrollable_frame(parent_frame)
                 container.pack(fill=tk.BOTH, expand=True)
 
-                self.create_admin_cars_grid(scrollable_frame, cars)
+                self.create_admin_cars_grid(scrollable_frame, filtered_cars)
 
                 bind_scroll_to_children(scrollable_frame)
 
