@@ -228,6 +228,57 @@ class CarTradingApp:
         if hasattr(self, 'current_filter_callback'):
             self.current_filter_callback()
 
+    def export_filtered_cars_to_docx(self, cars_list, title="Результаты поиска автомобилей"):
+        """Метод для экспорта отфильтрованных и отсортированных автомобилей"""
+        try:
+            if not cars_list:
+                messagebox.showinfo("Информация", "Нет данных для экспорта")
+                return
+
+            doc = Document()
+
+            doc.add_heading(title, 0)
+
+            current_time = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            doc.add_paragraph(f'Дата формирования: {current_time}')
+            doc.add_paragraph(f'Количество автомобилей: {len(cars_list)}')
+
+            table = doc.add_table(rows=1, cols=6)
+            table.style = 'Table Grid'
+
+            header_cells = table.rows[0].cells
+            headers = ['Марка', 'Модель', 'Пробег (км)', 'Цена (руб)', 'VIN', 'Статус']
+            
+            for i, header in enumerate(headers):
+                header_cells[i].text = header
+
+                paragraph = header_cells[i].paragraphs[0]
+                run = paragraph.runs[0] if paragraph.runs else paragraph.add_run()
+                run.bold = True
+
+            for car in cars_list:
+                row_cells = table.add_row().cells
+                row_cells[0].text = car.get('stamp', 'Не указана')
+                row_cells[1].text = car.get('model', 'Не указана')
+                row_cells[2].text = f"{car.get('run_km', 0):,}".replace(",", " ")
+                row_cells[3].text = f"{car.get('price', 0):,}".replace(",", " ")
+                row_cells[4].text = car.get('vin', 'Не указан')
+                row_cells[5].text = car.get('status', 'Доступен')
+
+            reports_dir = "reports"
+            if not os.path.exists(reports_dir):
+                os.makedirs(reports_dir)
+                
+            filename = f"car_search_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            filepath = os.path.join(reports_dir, filename)
+            doc.save(filepath)
+            
+            messagebox.showinfo("Успех", f"Результаты поиска экспортированы в файл:\n{filepath}")
+            
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Ошибка при экспорте: {str(e)}")
+
+
     def export_my_purchases_report(self):
         """Экспорт истории покупок пользователя в DOCX"""
         try:
@@ -1168,7 +1219,6 @@ class CarTradingApp:
         header_label = ttk.Label(header_frame, text="Доступные автомобили", 
                             style='Header.TLabel')
         header_label.pack(pady=(10, 5))
-
         back_frame = tk.Frame(header_frame, bg=self.colors['background'])
         back_frame.pack(fill=tk.X, pady=(0, 10))
         
@@ -1185,7 +1235,6 @@ class CarTradingApp:
                             bg=self.colors['light'], fg=self.colors['dark'],
                             font=('Arial', 14, 'bold'), anchor='w')
         cars_header.pack(fill=tk.X, pady=(0, 15))
-
         self.current_filter_callback = lambda: self.refresh_cars_list(card)
         filter_frame = self.show_filter_sort_options(card, self.current_filter_callback)
         
@@ -1993,7 +2042,6 @@ class CarTradingApp:
                             command=self.show_add_car_form,
                             width=30)
         add_btn.pack(ipady=10, anchor='center')
-
         separator = ttk.Separator(card, orient='horizontal')
         separator.pack(fill=tk.X, pady=20)
 
