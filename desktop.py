@@ -1,7 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from docx import Document
+from docx.shared import Inches
+from datetime import datetime
 import requests
-import json
+import os
 
 API_BASE_URL = "http://localhost:8000"
 
@@ -224,6 +227,253 @@ class CarTradingApp:
 
         if hasattr(self, 'current_filter_callback'):
             self.current_filter_callback()
+
+    def export_my_purchases_report(self):
+        """Экспорт истории покупок пользователя в DOCX"""
+        try:
+            purchases = self.get_my_purchases_data()
+            
+            if not purchases:
+                messagebox.showinfo("Информация", "У вас нет покупок для экспорта")
+                return
+
+            doc = Document()
+
+            title = doc.add_heading('Мои покупки в AvtoLimonchik', 0)
+
+            current_time = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            doc.add_paragraph(f'Дата формирования отчета: {current_time}')
+            doc.add_paragraph(f'Пользователь: {self.current_user.get("name", "")}')
+            doc.add_paragraph(f'Email: {self.current_user.get("email", "")}')
+            doc.add_paragraph(f'Телефон: {self.current_user.get("phone", "")}')
+
+            doc.add_heading('Общая статистика', level=1)
+            total_cars = len(purchases)
+            total_spent = sum(purchase.get('price', 0) for purchase in purchases)
+            
+            stats = doc.add_paragraph()
+            stats.add_run('Общее количество автомобилей: ').bold = True
+            stats.add_run(f'{total_cars} шт.\n')
+            stats.add_run('Общая сумма покупок: ').bold = True
+            stats.add_run(f'{total_spent:,} руб.\n'.replace(",", " "))
+            
+            if total_cars > 0:
+                avg_price = total_spent / total_cars
+                stats.add_run('Средняя стоимость автомобиля: ').bold = True
+                stats.add_run(f'{avg_price:,.0f} руб.\n'.replace(",", " "))
+
+            doc.add_heading('Детальная информация о покупках', level=1)
+            
+            for i, purchase in enumerate(purchases, 1):
+                car_info = purchase.get('car', {})
+                purchase_date = purchase.get('date_buy', '')[:10]
+
+                purchase_heading = doc.add_heading(f'Покупка #{i}', level=2)
+
+                car_table = doc.add_table(rows=6, cols=2)
+                car_table.style = 'Table Grid'
+ 
+                cells_data = [
+                    ('Дата покупки:', purchase_date),
+                    ('Марка:', car_info.get('stamp', 'Не указана')),
+                    ('Модель:', car_info.get('model', 'Не указана')),
+                    ('VIN:', car_info.get('vin', 'Не указан')),
+                    ('Пробег:', f"{car_info.get('run_km', 0):,} км".replace(",", " ")),
+                    ('Стоимость:', f"{purchase.get('price', 0):,} руб".replace(",", " "))
+                ]
+                
+                for row, (label, value) in enumerate(cells_data):
+                    car_table.cell(row, 0).text = label
+                    car_table.cell(row, 1).text = value
+
+                description = car_info.get('description')
+                if description:
+                    doc.add_paragraph('Описание автомобиля:')
+                    desc_para = doc.add_paragraph(description)
+                    desc_para.style = 'List Bullet'
+
+                if i < len(purchases):
+                    doc.add_paragraph()
+                    doc.add_paragraph('―' * 50)
+                    doc.add_paragraph()
+
+            reports_dir = "reports"
+            if not os.path.exists(reports_dir):
+                os.makedirs(reports_dir)
+
+            filename = f"my_purchases_AvtoLimonchik{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            filepath = os.path.join(reports_dir, filename)
+            doc.save(filepath)
+            
+            messagebox.showinfo("Успех", f"Отчет о покупках успешно экспортирован в файл:\n{filepath}")
+            
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Ошибка при экспорте отчета: {str(e)}")
+
+    def get_my_purchases_data(self):
+        """Получить данные о покупках пользователя"""
+        try:
+            headers = {"token": self.auth_token}
+            response = requests.get(f"{API_BASE_URL}/users/my_purchases", headers=headers)
+            
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 404:
+                return []
+            else:
+                error_msg = response.json().get("detail", "Ошибка загрузки покупок")
+                print(f"Ошибка: {error_msg}")
+                return []
+                
+        except requests.exceptions.RequestException as e:
+            print(f"Ошибка подключения: {e}")
+            return []
+        
+    def collect_firm_statistics_for_export(self):
+        """Сбор статистики фирмы для экспорта"""
+        stats = {
+            'available_cars': 0,
+            'firm_purchased_cars': 0, 
+            'firm_solds_cars': 0,  
+            'total_revenue': 0,
+            'total_purchase_cost': 0, 
+            'recent_firm_sales': [],
+            'recent_firm_purchases': [],
+            'report_date': datetime.now().strftime("%d.%m.%Y %H:%M"),
+            'firm_name': 'AvtoLimonchik'
+        }
+        
+        try:
+            headers = {"token": self.auth_token}
+
+            response = requests.get(f"{API_BASE_URL}/users/cars/available", headers=headers)
+            if response.status_code == 200:
+                available_cars = response.json()
+                stats['available_cars'] = len(available_cars)
+
+            response = requests.get(f"{API_BASE_URL}/admin/sales/", headers=headers)
+            if response.status_code == 200:
+                firm_sales = response.json()
+                stats['firm_purchased_cars'] = len(firm_sales)
+
+                total_revenue = 0
+                for sale in firm_sales:
+                    price = sale.get('price', 0)
+                    total_revenue += price
+                
+                stats['total_revenue'] = total_revenue
+
+                recent_sales = sorted(firm_sales, key=lambda x: x.get('date_sale', ''), reverse=True)[:10]
+                for sale in recent_sales:
+                    stats['recent_firm_sales'].append({
+                        'buyer_name': sale.get('buyer', {}).get('name', 'Неизвестно'),
+                        'car_info': f"{sale.get('car', {}).get('stamp', '')} {sale.get('car', {}).get('model', '')}",
+                        'price': sale.get('price', 0),
+                        'date': sale.get('date_sale', '')[:10]
+                    })
+            response = requests.get(f"{API_BASE_URL}/admin/shopping/", headers=headers)
+            if response.status_code == 200:
+                firm_purchases = response.json()
+                stats['firm_solds_cars'] = len(firm_purchases)
+
+                total_purchase_cost = 0
+                for purchase in firm_purchases:
+                    price = purchase.get('price', 0)
+                    total_purchase_cost += price
+                
+                stats['total_purchase_cost'] = total_purchase_cost
+
+                recent_purchases = sorted(firm_purchases, key=lambda x: x.get('date_buy', ''), reverse=True)[:10]
+                for purchase in recent_purchases:
+                    stats['recent_firm_purchases'].append({
+                        'buyer_name': purchase.get('buyer', {}).get('name', 'Неизвестно'),
+                        'car_info': f"{purchase.get('car', {}).get('stamp', '')} {purchase.get('car', {}).get('model', '')}",
+                        'price': purchase.get('price', 0),
+                        'date': purchase.get('date_buy', '')[:10]
+                    })
+            
+        except Exception as e:
+            print(f"Ошибка при сборе статистики фирмы: {e}")
+        
+        return stats
+
+    def export_firm_report(self):
+        """Экспорт отчета по деятельности фирмы в DOCX"""
+        try:
+
+            doc = Document()
+
+            title = doc.add_heading('Отчет о деятельности AvtoLimonchik', 0)
+            current_time = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            doc.add_paragraph(f'Дата формирования: {current_time}')
+            doc.add_paragraph(f'Отчет подготовил: {self.current_user.get("name", "")}')
+
+            stats = self.collect_firm_statistics_for_export()
+
+            doc.add_heading('Общая статистика деятельности фирмы', level=1)
+            
+            general_stats = doc.add_paragraph()
+            general_stats.add_run('Автомобили в продаже: ').bold = True
+            general_stats.add_run(f'{stats["available_cars"]} ед.\n')
+            
+            general_stats.add_run('Машин продано фирмой: ').bold = True
+            general_stats.add_run(f'{stats["firm_solds_cars"]} ед.\n')
+            
+            general_stats.add_run('Машин куплено фирмой: ').bold = True
+            general_stats.add_run(f'{stats["firm_purchased_cars"]} ед.\n')
+            
+            general_stats.add_run('Общая выручка от продаж: ').bold = True
+            general_stats.add_run(f'{stats["total_purchase_cost"]:,} руб.\n'.replace(",", " "))
+            
+            general_stats.add_run('Общие затраты на покупки: ').bold = True
+            general_stats.add_run(f'{stats["total_revenue"]:,} руб.\n'.replace(",", " "))
+        
+            profit = stats["total_purchase_cost"] - stats["total_revenue"]
+            profit_status = "Прибыль" if profit >= 0 else "Убыток"
+            
+            general_stats.add_run(f'Финансовый результат: ').bold = True
+            general_stats.add_run(f'{profit_status}: {abs(profit):,} руб.'.replace(",", " "))
+
+            doc.add_heading('Последние покупки фирмы', level=1)
+            if stats['recent_firm_sales']:
+                for sale in stats['recent_firm_sales']:
+                    p = doc.add_paragraph(style='List Bullet')
+                    p.add_run(f'{sale["date"]} - {sale["buyer_name"]} - {sale["car_info"]} - {sale["price"]:,} руб'.replace(",", " "))
+            else:
+                doc.add_paragraph('Нет данных о покупках')
+
+            doc.add_heading('Последние продажи фирмы', level=1)
+            if stats['recent_firm_purchases']:
+                for purchase in stats['recent_firm_purchases']:
+                    p = doc.add_paragraph(style='List Bullet')
+                    p.add_run(f'{purchase["date"]} - {purchase["buyer_name"]} - {purchase["car_info"]} - {purchase["price"]:,} руб'.replace(",", " "))
+            else:
+                doc.add_paragraph('Нет данных о продажах')
+
+            doc.add_heading('Финансовая сводка', level=1)
+            financial_info = doc.add_paragraph()
+            financial_info.add_run('Выручка от продаж: ').bold = True
+            financial_info.add_run(f'{stats["total_purchase_cost"]:,} руб.\n'.replace(",", " "))
+            
+            financial_info.add_run('Затраты на закупки: ').bold = True
+            financial_info.add_run(f'{stats["total_revenue"]:,} руб.\n'.replace(",", " "))
+            
+            financial_info.add_run('Чистый финансовый результат: ').bold = True
+            financial_info.add_run(f'{profit_status}: {abs(profit):,} руб.\n'.replace(",", " "))
+
+
+            reports_dir = "reports"
+            if not os.path.exists(reports_dir):
+                os.makedirs(reports_dir)
+                
+            filename = f"firm_report_AvtoLimonchik{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            filepath = os.path.join(reports_dir, filename)
+            doc.save(filepath)
+            
+            messagebox.showinfo("Успех", f"Отчет о деятельности фирмы успешно экспортирован в файл:\n{filepath}")
+            
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Ошибка при экспорте отчета: {str(e)}")
 
     def show_auth_frame(self):
         """Показать фрейм авторизации"""
@@ -553,6 +803,7 @@ class CarTradingApp:
                     ("👥 Управление пользователями", self.show_user_management, 'Danger.TButton'),
                     ("🛒 История покупок", self.show_admin_purchases, 'Secondary.TButton'),
                     ("💰 История продаж", self.show_admin_sales, 'Secondary.TButton'),
+                    ("📊 Отчет в DOCX", self.export_firm_report, 'Secondary.TButton'),
             ]
         else:
 
@@ -2381,10 +2632,19 @@ class CarTradingApp:
         card = self.create_card_frame(main_frame)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
 
-        purchases_header = tk.Label(card, text="🛒 История моих покупок", 
+        header_content = tk.Frame(card, bg=self.colors['light'])
+        header_content.pack(fill=tk.X, pady=(0, 15))
+        
+        purchases_header = tk.Label(header_content, text="🛒 История моих покупок", 
                                 bg=self.colors['light'], fg=self.colors['dark'],
                                 font=('Arial', 14, 'bold'), anchor='w')
-        purchases_header.pack(fill=tk.X, pady=(0, 15))
+        purchases_header.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        export_btn = ttk.Button(header_content, text="📄 Экспорт в DOCX",
+                            style='Accent.TButton',
+                            command=self.export_my_purchases_report,
+                            width=18)
+        export_btn.pack(side=tk.RIGHT, padx=(10, 0), ipady=5)
 
         purchases_frame = tk.Frame(card, bg=self.colors['light'])
         purchases_frame.pack(fill=tk.BOTH, expand=True, pady=10)
