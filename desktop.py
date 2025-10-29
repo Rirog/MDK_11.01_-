@@ -94,7 +94,7 @@ class CarTradingApp:
         return card
 
     def show_filter_sort_options(self, parent, filter_callback):
-        """фильтрация и сортировка"""
+        """фильтрация и сортировка с кнопкой экспорта"""
         filter_frame = tk.Frame(parent, bg=self.colors['light'])
         filter_frame.pack(fill=tk.X, pady=(0, 15))
 
@@ -166,18 +166,95 @@ class CarTradingApp:
                             style='Secondary.TButton',
                             command=self.reset_filters,
                             width=12)
-        reset_btn.pack(side=tk.LEFT)
+        reset_btn.pack(side=tk.LEFT, padx=(0, 5))
+
+        export_btn = ttk.Button(buttons_frame, text="📄 Экспорт в DOCX",
+                            style='Success.TButton',
+                            command=self.export_filtered_cars_to_docx,
+                            width=30)
+        export_btn.pack(side=tk.LEFT)
         
         return filter_frame
 
-    def on_stamp_selected(self, event=None):
-        """Обработчик выбора марки - обновляет список моделей"""
-        selected_stamp = self.filter_stamp_combo.get()
-        if selected_stamp and hasattr(self, 'original_cars_data'):
-            models = list(set(car.get('model', '') for car in self.original_cars_data 
-                            if car.get('stamp') == selected_stamp and car.get('model')))
-            self.filter_model_combo['values'] = models
-            self.filter_model_combo.set('')
+    def export_filtered_cars_to_docx(self):
+        """Экспорт отфильтрованных автомобилей в DOCX"""
+        try:
+            if not hasattr(self, 'filtered_cars') or not self.filtered_cars:
+                messagebox.showinfo("Информация", "Нет данных для экспорта")
+                return
+
+            doc = Document()
+
+            title = doc.add_heading('Отфильтрованный список автомобилей AvtoLimonchik', 0)
+
+            current_time = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            doc.add_paragraph(f'Дата формирования отчета: {current_time}')
+
+            filters_info = doc.add_paragraph()
+            filters_info.add_run('Примененные фильтры:\n').bold = True
+            
+            filter_text = ""
+            if hasattr(self, 'filter_stamp_combo') and self.filter_stamp_combo.get():
+                filter_text += f"Марка: {self.filter_stamp_combo.get()}\n"
+            if hasattr(self, 'filter_model_combo') and self.filter_model_combo.get():
+                filter_text += f"Модель: {self.filter_model_combo.get()}\n"
+            if hasattr(self, 'filter_price_entry') and self.filter_price_entry.get():
+                filter_text += f"Цена до: {self.filter_price_entry.get()} руб\n"
+            if hasattr(self, 'sort_combo') and self.sort_combo.get():
+                filter_text += f"Сортировка: {self.sort_combo.get()}\n"
+            
+            if filter_text:
+                filters_info.add_run(filter_text)
+            else:
+                filters_info.add_run('Фильтры не применены\n')
+
+            stats = doc.add_paragraph()
+            stats.add_run('Статистика:\n').bold = True
+            stats.add_run(f'Найдено автомобилей: {len(self.filtered_cars)} шт.\n')
+            
+            if self.filtered_cars:
+                total_price = sum(car.get('price', 0) for car in self.filtered_cars)
+                avg_price = total_price / len(self.filtered_cars)
+                stats.add_run(f'Средняя цена: {avg_price:,.0f} руб.\n'.replace(",", " "))
+                stats.add_run(f'Общая стоимость: {total_price:,} руб.\n'.replace(",", " "))
+
+            doc.add_heading('Список автомобилей', level=1)
+            
+            if self.filtered_cars:
+                table = doc.add_table(rows=1, cols=6)
+                table.style = 'Table Grid'
+
+                hdr_cells = table.rows[0].cells
+                hdr_cells[0].text = '№'
+                hdr_cells[1].text = 'Марка'
+                hdr_cells[2].text = 'Модель'
+                hdr_cells[3].text = 'Пробег (км)'
+                hdr_cells[4].text = 'Цена (руб)'
+                hdr_cells[5].text = 'VIN'
+
+                for i, car in enumerate(self.filtered_cars, 1):
+                    row_cells = table.add_row().cells
+                    row_cells[0].text = str(i)
+                    row_cells[1].text = car.get('stamp', '')
+                    row_cells[2].text = car.get('model', '')
+                    row_cells[3].text = f"{car.get('run_km', 0):,}".replace(",", " ")
+                    row_cells[4].text = f"{car.get('price', 0):,}".replace(",", " ")
+                    row_cells[5].text = car.get('vin', '')
+            else:
+                doc.add_paragraph('Нет автомобилей, соответствующих фильтрам')
+
+            reports_dir = "reports"
+            if not os.path.exists(reports_dir):
+                os.makedirs(reports_dir)
+
+            filename = f"filtered_cars_AvtoLimonchik_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            filepath = os.path.join(reports_dir, filename)
+            doc.save(filepath)
+            
+            messagebox.showinfo("Успех", f"Отфильтрованный список автомобилей успешно экспортирован в файл:\n{filepath}")
+            
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Ошибка при экспорте: {str(e)}")
 
     def apply_car_filters(self, cars):
         """Применить фильтры и сортировку к списку автомобилей"""
@@ -211,8 +288,19 @@ class CarTradingApp:
                 filtered_cars.sort(key=lambda x: x.get('run_km', 0))
             elif sort_option == "Пробег (по убыванию)":
                 filtered_cars.sort(key=lambda x: x.get('run_km', 0), reverse=True)
+
+        self.filtered_cars = filtered_cars
         
         return filtered_cars
+
+    def on_stamp_selected(self, event=None):
+        """Обработчик выбора марки - обновляет список моделей"""
+        selected_stamp = self.filter_stamp_combo.get()
+        if selected_stamp and hasattr(self, 'original_cars_data'):
+            models = list(set(car.get('model', '') for car in self.original_cars_data 
+                            if car.get('stamp') == selected_stamp and car.get('model')))
+            self.filter_model_combo['values'] = models
+            self.filter_model_combo.set('')
 
     def reset_filters(self):
         """Сбросить фильтры"""
@@ -227,57 +315,6 @@ class CarTradingApp:
 
         if hasattr(self, 'current_filter_callback'):
             self.current_filter_callback()
-
-    def export_filtered_cars_to_docx(self, cars_list, title="Результаты поиска автомобилей"):
-        """Метод для экспорта отфильтрованных и отсортированных автомобилей"""
-        try:
-            if not cars_list:
-                messagebox.showinfo("Информация", "Нет данных для экспорта")
-                return
-
-            doc = Document()
-
-            doc.add_heading(title, 0)
-
-            current_time = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-            doc.add_paragraph(f'Дата формирования: {current_time}')
-            doc.add_paragraph(f'Количество автомобилей: {len(cars_list)}')
-
-            table = doc.add_table(rows=1, cols=6)
-            table.style = 'Table Grid'
-
-            header_cells = table.rows[0].cells
-            headers = ['Марка', 'Модель', 'Пробег (км)', 'Цена (руб)', 'VIN', 'Статус']
-            
-            for i, header in enumerate(headers):
-                header_cells[i].text = header
-
-                paragraph = header_cells[i].paragraphs[0]
-                run = paragraph.runs[0] if paragraph.runs else paragraph.add_run()
-                run.bold = True
-
-            for car in cars_list:
-                row_cells = table.add_row().cells
-                row_cells[0].text = car.get('stamp', 'Не указана')
-                row_cells[1].text = car.get('model', 'Не указана')
-                row_cells[2].text = f"{car.get('run_km', 0):,}".replace(",", " ")
-                row_cells[3].text = f"{car.get('price', 0):,}".replace(",", " ")
-                row_cells[4].text = car.get('vin', 'Не указан')
-                row_cells[5].text = car.get('status', 'Доступен')
-
-            reports_dir = "reports"
-            if not os.path.exists(reports_dir):
-                os.makedirs(reports_dir)
-                
-            filename = f"car_search_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
-            filepath = os.path.join(reports_dir, filename)
-            doc.save(filepath)
-            
-            messagebox.showinfo("Успех", f"Результаты поиска экспортированы в файл:\n{filepath}")
-            
-        except Exception as e:
-            messagebox.showerror("Ошибка", f"Ошибка при экспорте: {str(e)}")
-
 
     def export_my_purchases_report(self):
         """Экспорт истории покупок пользователя в DOCX"""
@@ -1245,9 +1282,8 @@ class CarTradingApp:
 
     def refresh_cars_list(self, parent_card):
         """Обновить список автомобилей"""
-
         for widget in parent_card.winfo_children():
-            if isinstance(widget, tk.Frame) and widget != parent_card.winfo_children()[1]:  # Пропускаем заголовок и фильтры
+            if isinstance(widget, tk.Frame) and widget != parent_card.winfo_children()[1]:
                 widget.destroy()
                 break
 
@@ -2679,20 +2715,11 @@ class CarTradingApp:
 
         card = self.create_card_frame(main_frame)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-
-        header_content = tk.Frame(card, bg=self.colors['light'])
-        header_content.pack(fill=tk.X, pady=(0, 15))
         
         purchases_header = tk.Label(header_content, text="🛒 История моих покупок", 
                                 bg=self.colors['light'], fg=self.colors['dark'],
                                 font=('Arial', 14, 'bold'), anchor='w')
         purchases_header.pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-        export_btn = ttk.Button(header_content, text="📄 Экспорт в DOCX",
-                            style='Accent.TButton',
-                            command=self.export_my_purchases_report,
-                            width=18)
-        export_btn.pack(side=tk.RIGHT, padx=(10, 0), ipady=5)
 
         purchases_frame = tk.Frame(card, bg=self.colors['light'])
         purchases_frame.pack(fill=tk.BOTH, expand=True, pady=10)
