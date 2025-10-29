@@ -91,7 +91,7 @@ class CarTradingApp:
         return card
 
     def show_filter_sort_options(self, parent, filter_callback):
-        """Показать опции фильтрации и сортировки"""
+        """фильтрация и сортировка"""
         filter_frame = tk.Frame(parent, bg=self.colors['light'])
         filter_frame.pack(fill=tk.X, pady=(0, 15))
 
@@ -545,7 +545,7 @@ class CarTradingApp:
 
         if self.current_user.get('role') == 'Администратор':
             menu_buttons = [
-                    ("👤 Управление профилем", self.show_main_menu_old_style, 'Accent.TButton'),
+                    ("👤 Управление профилем", self.show_my_profil, 'Accent.TButton'),
                     ("🚗 Управление автомобилями", self.show_admin_cars_management, 'Success.TButton'),
                     ("🏷️ Управление марками", self.show_stamp_management, 'Secondary.TButton'),
                     ("🚙 Управление моделями", self.show_model_management, 'Secondary.TButton'),
@@ -557,7 +557,7 @@ class CarTradingApp:
         else:
 
             menu_buttons = [
-                ("👤 Управление профилем", self.show_main_menu_old_style, 'Accent.TButton'),
+                ("👤 Управление профилем", self.show_my_profil, 'Accent.TButton'),
                 ("🚗 Доступные автомобили", self.show_available_cars, 'Success.TButton'),
                 ("📝 Мои анкеты", self.show_my_anketi, 'Secondary.TButton'),
                 ("🛒 Мои покупки", self.show_my_purchases, 'Secondary.TButton'),
@@ -592,8 +592,8 @@ class CarTradingApp:
         footer_label.pack()
     
 
-    def show_main_menu_old_style(self):
-        """Старый стиль главного меню (профиль)"""
+    def show_my_profil(self):
+        """Профиль"""
         self.clear_window()
         
         main_frame = ttk.Frame(self.root, padding="20")
@@ -670,7 +670,7 @@ class CarTradingApp:
     
 
     def show_edit_profile(self):
-        """Показать форму редактирования профиля"""
+        """Редактирования профиля"""
         self.clear_window()
         
         main_frame = ttk.Frame(self.root, padding="20")
@@ -729,7 +729,7 @@ class CarTradingApp:
 
 
     def show_change_password(self):
-        """Показать форму смены пароля"""
+        """Смена пароля"""
         self.clear_window()
         
         main_frame = ttk.Frame(self.root, padding="20")
@@ -787,7 +787,7 @@ class CarTradingApp:
 
 
     def perform_edit_profile(self):
-        """Выполнить обновление профиля"""
+        """Обновление профиля"""
         full_name = self.edit_entries["edit_full_name"].get().strip()
         phone = self.edit_entries["edit_phone"].get().strip()
         
@@ -815,7 +815,7 @@ class CarTradingApp:
             messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
 
     def perform_change_password(self):
-        """Выполнить смену пароля"""
+        """Смена пароля"""
         new_password = self.password_entries["new_password"].get()
         confirm_password = self.password_entries["confirm_password"].get()
         
@@ -855,7 +855,7 @@ class CarTradingApp:
             self.perform_delete_account()
 
     def perform_delete_account(self):
-        """Выполнить удаление аккаунта"""
+        """Удаление аккаунта"""
         try:
             headers = {"token": self.auth_token}
             response = requests.delete(f"{API_BASE_URL}/users/delete_me/", headers=headers)
@@ -1369,7 +1369,7 @@ class CarTradingApp:
             parent.grid_columnconfigure(col, weight=1)
 
     def show_create_anketa_form(self):
-        """Показать форму создания новой анкеты"""
+        """Создание новой анкеты"""
         self.clear_window()
         
         main_frame = ttk.Frame(self.root, padding="20")
@@ -1453,7 +1453,7 @@ class CarTradingApp:
         cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
 
     def show_edit_anketa_form(self, anketa):
-        """Показать форму редактирования анкеты"""
+        """Редактирования анкеты"""
         self.clear_window()
         self.current_editing_anketa = anketa
         
@@ -1541,7 +1541,7 @@ class CarTradingApp:
         cancel_btn.pack(fill=tk.X, pady=6, ipady=6)
 
     def load_car_data(self):
-        """Загрузить марки и модели автомобилей из API"""
+        """Загрузить марки и модели автомобилей"""
         try:
             headers = {"token": self.auth_token}
 
@@ -1576,7 +1576,7 @@ class CarTradingApp:
             return False
 
     def perform_create_anketa(self):
-        """Создать новую анкету"""
+        """Создание новой анкету"""
         try:
             data = {
                 "stamp": self.get_entry_value("create_stamp"),
@@ -1609,7 +1609,7 @@ class CarTradingApp:
             messagebox.showerror("Ошибка", f"Ошибка подключения: {str(e)}")
 
     def perform_edit_anketa(self):
-        """Редактировать анкету"""
+        """Изменение анкеты"""
         try:
             data = {}
 
@@ -3236,7 +3236,7 @@ class CarTradingApp:
 
 
     def create_scrollable_frame(self, parent):
-        """Создать скроллируемую область с правильной работой скроллбара"""
+        """Скроллируемая область"""
         container = tk.Frame(parent, bg=self.colors['light'])
         
         canvas = tk.Canvas(container, bg=self.colors['light'], highlightthickness=0)
