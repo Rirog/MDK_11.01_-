@@ -343,7 +343,6 @@ class CarTradingApp:
 
                 car_table = doc.add_table(rows=6, cols=2)
                 car_table.style = 'Table Grid'
- 
                 cells_data = [
                     ('Дата покупки:', purchase_date),
                     ('Марка:', car_info.get('stamp', 'Не указана')),
