@@ -495,7 +495,8 @@ async def get_my_purchases(token: str = Header(...)):
             "car": {
                 "stamp": purchase.car_id.stamp_id.stamp,
                 "model": purchase.car_id.model_car_id.model_car,
-                "vin": purchase.car_id.vin
+                "vin": purchase.car_id.vin,
+                "run_km": purchase.car_id.run_km
             },
             "price": purchase.price,
             "date_buy": purchase.date_buy.isoformat()
