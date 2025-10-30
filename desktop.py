@@ -190,23 +190,6 @@ class CarTradingApp:
             current_time = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
             doc.add_paragraph(f'Дата формирования отчета: {current_time}')
 
-            filters_info = doc.add_paragraph()
-            filters_info.add_run('Примененные фильтры:\n').bold = True
-            
-            filter_text = ""
-            if hasattr(self, 'filter_stamp_combo') and self.filter_stamp_combo.get():
-                filter_text += f"Марка: {self.filter_stamp_combo.get()}\n"
-            if hasattr(self, 'filter_model_combo') and self.filter_model_combo.get():
-                filter_text += f"Модель: {self.filter_model_combo.get()}\n"
-            if hasattr(self, 'filter_price_entry') and self.filter_price_entry.get():
-                filter_text += f"Цена до: {self.filter_price_entry.get()} руб\n"
-            if hasattr(self, 'sort_combo') and self.sort_combo.get():
-                filter_text += f"Сортировка: {self.sort_combo.get()}\n"
-            
-            if filter_text:
-                filters_info.add_run(filter_text)
-            else:
-                filters_info.add_run('Фильтры не применены\n')
 
             stats = doc.add_paragraph()
             stats.add_run('Статистика:\n').bold = True
@@ -2716,10 +2699,19 @@ class CarTradingApp:
         card = self.create_card_frame(main_frame)
         card.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
         
+        header_content = tk.Frame(card, bg=self.colors['light'])
+        header_content.pack(fill=tk.X, pady=(0, 15))
+        
         purchases_header = tk.Label(header_content, text="🛒 История моих покупок", 
                                 bg=self.colors['light'], fg=self.colors['dark'],
                                 font=('Arial', 14, 'bold'), anchor='w')
         purchases_header.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        export_btn = ttk.Button(header_content, text="📄 Экспорт в DOCX",
+                            style='Accent.TButton',
+                            command=self.export_my_purchases_report,
+                            width=18)
+        export_btn.pack(side=tk.RIGHT, padx=(10, 0), ipady=5)
 
         purchases_frame = tk.Frame(card, bg=self.colors['light'])
         purchases_frame.pack(fill=tk.BOTH, expand=True, pady=10)
